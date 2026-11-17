@@ -9,6 +9,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,7 +38,7 @@ class TaskApiIntegrationTest {
                 .andExpect(jsonPath("$.completed").value(false))
                 .andReturn().getResponse().getHeader("Location");
 
-        assert location != null;
+        assertNotNull(location);
         mvc.perform(get(location))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Write tests"));

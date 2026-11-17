@@ -28,8 +28,8 @@ orchestration, monitoring, and recovery procedures.
 
 #### Project Status
 
-**Current phase:** REST API implemented and tested locally.<br/>
-CI/CD, frontend, container deployment, monitoring and coverage are still planned.
+**Current phase:** REST API, automated tests, JaCoCo and GitHub Actions CI verified.<br/>
+Local SonarQube analysis passed; frontend, deployment and monitoring are planned.
 
 #### Technologies
 
@@ -100,10 +100,9 @@ deployment operations.
 
 **Local validation (17 November 2026):** `mvn clean test` — BUILD SUCCESS.<br/>
 9 tests passed: 4 service unit, 4 API integration and 1 context-load test.<br/>
-JaCoCo coverage and CI execution have not yet been configured or verified.
+JaCoCo 80% gate and GitHub Actions CI run `44083764858` passed.
 
-Future GitHub Actions results and screenshots will be linked from this README<br/>
-and stored under `evidence/`.
+Verified evidence is shown below and stored under `evidence/`.
 
 #### JaCoCo Code Coverage
 
@@ -115,6 +114,19 @@ JaCoCo 0.8.16 measures Java test coverage during Maven verification.
 - HTML report: `target/site/jacoco/index.html`.
 
 ![JaCoCo coverage report](evidence/jococo.png)
+
+#### GitHub Actions CI
+
+The CI workflow is defined in `.github/workflows/ci.yml`.<br/>
+It runs Java 21, Maven verification, and the JaCoCo 80% coverage gate.
+
+- Triggers: PRs to `master`, pushes to `master` and `feature/**`, manual runs.
+- Test and coverage reports are uploaded as workflow artifacts.
+- Local workflow validation: **actionlint PASS**.
+- GitHub Actions run `44083764858`: **passed**; reports uploaded as artifacts.
+
+**Reference:** [GitHub Actions](https://docs.github.com/en/actions)
+
 #### Security and Supply Chain Controls
 
 The planned controls include:
@@ -131,6 +143,22 @@ The planned controls include:
 json-smart `2.6.0` → `2.6.1`; ASM `9.7.1` → `9.11.1` (test scope).<br/>
 Jackson Databind `3.1.7` was retained. Maven dependency resolution and tests passed.<br/>
 A full vulnerability scan and enforced security gate remain planned.
+
+#### SonarQube Static Analysis
+
+SonarQube identified a reliability issue (`java:S9427`) in an
+integration test. The Java `assert` was replaced with JUnit's
+`assertNotNull()`. A subsequent analysis confirmed the issue was resolved.
+
+**Before - Reliability D, 1 Open Issue**
+
+![SonarQube before](evidence/sonarqube-dashboard-issue.png)
+
+**After - Reliability A, 0 Open Issues**
+
+![SonarQube after](evidence/sonarqube-dashboard-successes.png)
+
+The Quality Gate passed with 90.2% coverage and 0.0% duplications.
 
 #### Containerisation and Deployment
 
@@ -179,8 +207,10 @@ Official technical and academic sources will be added when the related<br/>
 implementation decisions and controls are documented and validated.
 
 - [JaCoCo Maven Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
+
 #### Development Status and Limitations
 
 The REST API and nine automated tests have passed local validation.<br/>
-The frontend, JaCoCo, CI/CD workflows, Docker/Kubernetes delivery and monitoring<br/>
-are not yet implemented or validated. Evidence will be added as work progresses.
+JaCoCo, GitHub Actions CI and local SonarQube analysis have been verified.<br/>
+The frontend, container delivery, monitoring and a full vulnerability gate<br/>
+remain unimplemented or unverified.
