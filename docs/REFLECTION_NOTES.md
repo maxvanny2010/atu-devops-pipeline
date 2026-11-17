@@ -100,6 +100,13 @@ Application implementation and CI automation were deferred to later work.
 **Verified:** Local Maven build succeeded; 9 tests passed, 0 failures or errors.<br/>
 **Not yet implemented:** JaCoCo, CI workflows, deployment and monitoring.
 
+#### Entry 003 - JaCoCo Code Coverage
+
+**Date:** 17 November 2026
+
+JaCoCo 0.8.16 was integrated into Maven verification.<br/>
+All 9 tests passed with 88% instruction coverage.<br/>
+The 80% Quality Gate passed successfully.
 ### 3. Future Journal Entries
 
 For each development phase, record:

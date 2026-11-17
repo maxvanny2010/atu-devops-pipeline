@@ -105,6 +105,16 @@ JaCoCo coverage and CI execution have not yet been configured or verified.
 Future GitHub Actions results and screenshots will be linked from this README<br/>
 and stored under `evidence/`.
 
+#### JaCoCo Code Coverage
+
+JaCoCo 0.8.16 measures Java test coverage during Maven verification.
+
+- Automated tests: 9 passed, 0 failures.
+- Instruction coverage: **88%**.
+- Quality Gate: minimum **80%**, passed.
+- HTML report: `target/site/jacoco/index.html`.
+
+![JaCoCo coverage report](evidence/jococo.png)
 #### Security and Supply Chain Controls
 
 The planned controls include:
@@ -168,6 +178,7 @@ documented in this README and linked to files in `evidence/`.
 Official technical and academic sources will be added when the related<br/>
 implementation decisions and controls are documented and validated.
 
+- [JaCoCo Maven Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
 #### Development Status and Limitations
 
 The REST API and nine automated tests have passed local validation.<br/>

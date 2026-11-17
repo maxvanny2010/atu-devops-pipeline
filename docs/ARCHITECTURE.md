@@ -29,6 +29,10 @@ Local verification: 4 service unit tests, 4 MVC API integration tests and<br/>
 1 application context test passed on Spring Boot 4.1.2 with Java 21.<br/>
 The frontend has not yet been implemented.
 
+## Code Coverage
+
+JaCoCo generates coverage reports during Maven verification.<br/>
+A bundle-level Quality Gate requires at least 80% instruction coverage.
 ## CI Architecture
 
 The planned CI pipeline will validate changes before merging into `master`.
