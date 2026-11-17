@@ -160,14 +160,53 @@ integration test. The Java `assert` was replaced with JUnit's
 
 The Quality Gate passed with 90.2% coverage and 0.0% duplications.
 
-#### Containerisation and Deployment
+#### Trivy Container Security Scan
 
-The application will use Docker for packaging and local Kubernetes for<br/>
-orchestration. Infrastructure and deployment configurations will be kept in<br/>
-version control to support reproducibility.
+Trivy 0.76.2 scanned the Docker image and its Java dependencies.<br/>
+No HIGH or CRITICAL vulnerabilities were detected.
 
-Deployment validation will include readiness and liveness checks, smoke tests, and<br/>
-a documented rollback experiment.
+![Trivy image scan results](evidence/trivy-image-scan.png)
+
+#### Docker Containerisation and Security Scanning
+
+The Task Manager is packaged using a three-stage Docker build:
+
+1. **Build:** Maven and Java 21 compile the application, run 9 automated
+   tests and enforce the JaCoCo 80% coverage threshold.
+2. **Extract:** Spring Boot `jarmode=tools` extracts the layered JAR into
+   dependencies, Spring Boot loader, snapshot dependencies and application.
+3. **Runtime:** Java 21 JRE runs the extracted application without Maven,
+   the JDK or source files in the final image.
+
+Separating application code from dependencies improves Docker layer caching.
+
+**Runtime security controls:**
+
+- Non-root user: `10001:10001`.
+- Read-only container filesystem.
+- All Linux capabilities dropped.
+- `no-new-privileges` enabled.
+- Writable `tmpfs` restricted to `/app/tmp`.
+- Port 8080 bound to `127.0.0.1` for local testing.
+
+**Local validation:**
+
+- [x] Three-stage Docker image built successfully.
+- [x] Spring Boot Layered JAR extracted successfully.
+- [x] Application health endpoint returned `UP`.
+- [x] REST API `GET /api/tasks` passed.
+- [x] Container security configuration verified.
+- [x] Trivy 0.76.2 image scan completed.
+- [x] No HIGH or CRITICAL vulnerabilities detected.
+- [x] Local Trivy Security Gate passed with exit code 0.
+
+**Trivy Security Scan Evidence**
+
+![Trivy image scan results](evidence/trivy-image-scan.png)
+
+The GitHub Actions Docker security workflow builds the container image and
+uses Trivy with `exit-code: 1` for HIGH and CRITICAL vulnerabilities.<br/>
+Successful execution of this workflow on GitHub remains to be verified.
 
 #### Monitoring and Logging
 

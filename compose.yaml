@@ -1,0 +1,16 @@
+services:
+  task-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: atu-task-manager:local
+    ports:
+      - "127.0.0.1:8080:8080"
+    read_only: true
+    tmpfs:
+      - /app/tmp:uid=10001,gid=10001,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: "no"

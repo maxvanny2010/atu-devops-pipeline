@@ -147,6 +147,49 @@ The repeat SonarQube analysis passed its Quality Gate with 90.2% coverage,<br/>
 Before-and-after screenshots were retained in `evidence/`.<br/>
 SonarQube Community Build has limited security analysis capabilities.
 
+#### Entry 006 - Docker Containerisation and Trivy Security
+
+**Date:** 17 November 2026
+
+**Objective:** Package and validate the Spring Boot application in a
+secure Docker container and introduce automated image security scanning.
+
+**Implementation:**
+
+- Implemented a three-stage Dockerfile using Java 21.
+- Used Maven to build, test and verify the application.
+- Extracted Spring Boot Layered JAR components for Docker layer caching.
+- Configured a non-root runtime user and read-only filesystem.
+- Removed Linux capabilities and disabled privilege escalation.
+- Added a separate GitHub Actions Docker build and Trivy scanning workflow.
+
+**Challenges and resolutions:**
+
+- Tomcat initially failed because the `tmpfs` directory was not writable
+  by the non-root user. Explicit UID/GID options resolved the issue.
+- The initial layered application entrypoint could not load `JarLauncher`.
+  Using the extracted `application.jar` resolved the startup problem.
+- Trivy initially exceeded its scan timeout. Increasing the timeout to
+  20 minutes allowed the image scan to complete.
+
+**Verified results:**
+
+- Three-stage Docker build succeeded.
+- Application health returned `UP`.
+- REST API responded successfully.
+- Runtime security configuration was verified.
+- Trivy 0.76.2 detected 0 HIGH/CRITICAL vulnerabilities.
+- The local Trivy Security Gate passed.
+
+**Reflection:**
+
+A successful Docker build does not guarantee that a container can start.<br/>
+Runtime validation revealed permission and startup issues that automated
+build checks alone could not detect. Layered packaging also demonstrated
+the benefits of separating application code from dependencies.
+
+**Pending:** Verify the Docker security workflow on GitHub Actions.
+
 ### 3. Future Journal Entries
 
 For each development phase, record:
