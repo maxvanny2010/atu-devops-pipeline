@@ -28,9 +28,8 @@ orchestration, monitoring, and recovery procedures.
 
 #### Project Status
 
-**Current phase:** Project setup and architecture design. The pipeline, tests,<br/>
-deployment, and monitoring are planned and have not yet been validated. Results<br/>
-will be added after execution.
+**Current phase:** REST API implemented and tested locally.<br/>
+CI/CD, frontend, container deployment, monitoring and coverage are still planned.
 
 #### Technologies
 
@@ -52,13 +51,19 @@ will be added after execution.
 
 #### Application Scope
 
-The Task Manager application will provide a small REST API and web interface for<br/>
-managing tasks.
+The REST API is implemented using Spring Boot 4.1.2, Spring Data JPA and H2.<br/>
+The browser-based interface remains planned.
 
-- Create a task.
-- List existing tasks.
-- Update task status.
-- Delete a task.
+| Method | Endpoint          | Description        |
+|--------|-------------------|--------------------|
+| GET    | `/api/tasks`      | List all tasks     |
+| GET    | `/api/tasks/{id}` | Get a task by ID   |
+| POST   | `/api/tasks`      | Create a task      |
+| PATCH  | `/api/tasks/{id}` | Update task status |
+| DELETE | `/api/tasks/{id}` | Delete a task      |
+
+Requests use Bean Validation; invalid data and missing tasks receive HTTP 400/404.<br/>
+The API uses controller, service and repository layers.
 
 #### Pipeline Architecture
 
@@ -79,22 +84,37 @@ deployment operations.
 - `master` is the integration branch.
 - Feature branches isolate implementation changes.
 - Pull Requests document changes, tests, and review outcomes.
-- Release tags will identify validated application versions.
+- Each commit is identified by its Git SHA; pushes and PRs do not create versions.
+- Release tags will identify validated application versions after CI is configured.
 
 #### Testing Strategy
 
 | Test Level     | Purpose                                      | Status  |
 |----------------|----------------------------------------------|---------|
-| Unit           | Validate isolated application logic          | Planned |
-| Integration    | Validate application components together     | Planned |
-| API            | Validate REST endpoint behaviour             | Planned |
+| Unit           | Validate isolated application logic          | Passed  |
+| Integration    | Validate application components together     | Passed  |
+| API            | Validate REST endpoint behaviour             | Passed  |
 | Frontend / E2E | Validate browser-based user workflows        | Planned |
 | Security       | Detect vulnerable dependencies and images    | Planned |
 | Deployment     | Validate rollout, health checks and rollback | Planned |
 
-Test results, GitHub Actions run links, and screenshots will be documented in the<br/>
-relevant README sections and stored under `evidence/`.
+**Local validation (17 November 2026):** `mvn clean test` — BUILD SUCCESS.<br/>
+9 tests passed: 4 service unit, 4 API integration and 1 context-load test.<br/>
+JaCoCo coverage and CI execution have not yet been configured or verified.
 
+Future GitHub Actions results and screenshots will be linked from this README<br/>
+and stored under `evidence/`.
+
+#### JaCoCo Code Coverage
+
+JaCoCo 0.8.16 measures Java test coverage during Maven verification.
+
+- Automated tests: 9 passed, 0 failures.
+- Instruction coverage: **88%**.
+- Quality Gate: minimum **80%**, passed.
+- HTML report: `target/site/jacoco/index.html`.
+
+![JaCoCo coverage report](evidence/jococo.png)
 #### Security and Supply Chain Controls
 
 The planned controls include:
@@ -107,8 +127,10 @@ The planned controls include:
 - Immutable container image digests and provenance where supported.
 - Protected deployment configuration and restricted secret access.
 
-Verified controls, test evidence, and remaining limitations will be added to this<br/>
-section after implementation.
+**Dependency remediation verified locally:** H2 `2.4.240` → `2.5.252`;<br/>
+json-smart `2.6.0` → `2.6.1`; ASM `9.7.1` → `9.11.1` (test scope).<br/>
+Jackson Databind `3.1.7` was retained. Maven dependency resolution and tests passed.<br/>
+A full vulnerability scan and enforced security gate remain planned.
 
 #### Containerisation and Deployment
 
@@ -156,9 +178,9 @@ documented in this README and linked to files in `evidence/`.
 Official technical and academic sources will be added when the related<br/>
 implementation decisions and controls are documented and validated.
 
+- [JaCoCo Maven Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
 #### Development Status and Limitations
 
-This README describes the agreed project architecture at the initial setup stage.<br/>
-Planned features are not presented as completed work. Verified commands,<br/>
-screenshots, test results, and implementation limitations will be incorporated<br/>
-throughout development.
+The REST API and nine automated tests have passed local validation.<br/>
+The frontend, JaCoCo, CI/CD workflows, Docker/Kubernetes delivery and monitoring<br/>
+are not yet implemented or validated. Evidence will be added as work progresses.

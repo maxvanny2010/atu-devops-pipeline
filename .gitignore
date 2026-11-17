@@ -37,3 +37,4 @@ crash.log
 # OS
 .DS_Store
 Thumbs.db
+.maven-cache/

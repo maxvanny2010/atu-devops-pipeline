@@ -19,9 +19,23 @@ reliability, monitoring and reproducibility.
 | Build     | Maven                      | Dependency management and packaging |
 | Testing   | JUnit, Mockito, Playwright | Automated verification              |
 
+### Implemented Backend
+
+The current backend uses Spring MVC controllers, a service layer, Spring Data<br/>
+JPA repositories and an H2 database. Bean Validation checks requests, and<br/>
+centralised exception handling returns HTTP 400/404 where applicable.
+
+Local verification: 4 service unit tests, 4 MVC API integration tests and<br/>
+1 application context test passed on Spring Boot 4.1.2 with Java 21.<br/>
+The frontend has not yet been implemented.
+
+## Code Coverage
+
+JaCoCo generates coverage reports during Maven verification.<br/>
+A bundle-level Quality Gate requires at least 80% instruction coverage.
 ## CI Architecture
 
-The CI pipeline validates changes before merging into `master`.
+The planned CI pipeline will validate changes before merging into `master`.
 
 ```text
                       GitHub Pull Request
@@ -83,6 +97,10 @@ A dedicated deployment runner is separated from untrusted PR jobs.
 
 ## Security Architecture
 
+Verified dependency updates: H2 `2.5.252` (runtime), json-smart `2.6.1`<br/>
+and ASM `9.11.1` (test scope). Maven dependency resolution and local tests<br/>
+passed. Automated vulnerability scanning is not yet configured.
+
 - Restricted GitHub Actions permissions.
 - No deployment credentials in untrusted pull request jobs.
 - Protected branches and deployment environments where supported.
@@ -119,4 +137,5 @@ All implementation claims must be supported by actual verification.
 
 ## Architecture Status
 
-Design documented. Implementation and validation are pending.
+REST API and local automated tests implemented and validated.<br/>
+CI/CD, JaCoCo, frontend, deployment and observability remain planned.

@@ -66,10 +66,8 @@ Automated release management is planned after the core CI pipeline works.
 **Completed:**
 
 - Created the local Git repository.
-- Created the `master` and `feature/project-setup` branches.
-- Created the public GitHub repository.
-- Published both branches.
-- Created the initial commit `bd67797`.
+- Created and published the initial Git branches and GitHub repository.
+- Consolidated setup changes into one initial commit on `master`.
 - Established the initial README and Git ignore rules.
 
 **Challenge:**
@@ -85,8 +83,30 @@ Maintain separate Reflection Notes for Task 4.
 **Outcome:**
 
 The Git repository and initial project structure were established.<br/>
-The CI pipeline and application have not yet been implemented.
+Application implementation and CI automation were deferred to later work.
 
+#### Entry 002 - Task Manager REST API
+
+**Date:** 17 November 2026<br/>
+**Implemented:** Spring Boot 4.1.2 CRUD API, H2, validation and HTTP 400/404.
+
+**Challenges and fixes:**
+
+- Corrected the Spring Initializr parent version from `4.1.2.RELEASE` to `4.1.2`.
+- Avoided a Windows Maven cache lock by using a separate local repository.
+- Fixed invalid JSON string escaping in API integration tests.
+- Updated H2, json-smart and ASM after inspecting resolved dependency versions.
+
+**Verified:** Local Maven build succeeded; 9 tests passed, 0 failures or errors.<br/>
+**Not yet implemented:** JaCoCo, CI workflows, deployment and monitoring.
+
+#### Entry 003 - JaCoCo Code Coverage
+
+**Date:** 17 November 2026
+
+JaCoCo 0.8.16 was integrated into Maven verification.<br/>
+All 9 tests passed with 88% instruction coverage.<br/>
+The 80% Quality Gate passed successfully.
 ### 3. Future Journal Entries
 
 For each development phase, record:
