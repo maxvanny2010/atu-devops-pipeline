@@ -121,7 +121,7 @@ JaCoCo 0.8.16 measures Java test coverage during Maven verification.
 The CI workflow is defined in `.github/workflows/ci.yml`.<br/>
 It runs Java 21, Maven verification, and the JaCoCo 80% coverage gate.
 
-- Triggers: Pull Requests to `master`, pushes to `master`, and manual runs.
+- Triggers: PRs to `master`, pushes to `master` and `feature/**`, manual runs.
 - Test and coverage reports are uploaded as workflow artifacts.
 - Local workflow validation: **actionlint PASS**.
 - GitHub Actions execution: not yet verified.
