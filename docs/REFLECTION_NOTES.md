@@ -107,6 +107,14 @@ Application implementation and CI automation were deferred to later work.
 JaCoCo 0.8.16 was integrated into Maven verification.<br/>
 All 9 tests passed with 88% instruction coverage.<br/>
 The 80% Quality Gate passed successfully.
+
+#### Entry 004 - GitHub Actions CI
+
+**Date:** 17 November 2026
+
+Created a GitHub Actions workflow for Maven tests and JaCoCo.<br/>
+Local actionlint validation passed. GitHub execution remains unverified.
+
 ### 3. Future Journal Entries
 
 For each development phase, record:

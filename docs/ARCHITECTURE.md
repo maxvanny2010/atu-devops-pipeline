@@ -68,6 +68,14 @@ Independent checks run in parallel where practical.
 CI concurrency cancels superseded runs for the same branch.<br/>
 Pipeline permissions follow the principle of least privilege.
 
+## Implemented CI Workflow
+
+GitHub Actions defines a Java 21 Maven verification job.<br/>
+It executes unit and integration tests and the JaCoCo coverage gate.<br/>
+Test reports are retained as artifacts for inspection.
+
+The YAML passed local actionlint validation.<br/>
+Remote workflow execution has not yet been verified.
 ## Release and Supply Chain
 
 After successful validation of trusted code:

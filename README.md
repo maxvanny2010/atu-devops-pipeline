@@ -115,6 +115,19 @@ JaCoCo 0.8.16 measures Java test coverage during Maven verification.
 - HTML report: `target/site/jacoco/index.html`.
 
 ![JaCoCo coverage report](evidence/jococo.png)
+
+#### GitHub Actions CI
+
+The CI workflow is defined in `.github/workflows/ci.yml`.<br/>
+It runs Java 21, Maven verification, and the JaCoCo 80% coverage gate.
+
+- Triggers: Pull Requests to `master`, pushes to `master`, and manual runs.
+- Test and coverage reports are uploaded as workflow artifacts.
+- Local workflow validation: **actionlint PASS**.
+- GitHub Actions execution: not yet verified.
+
+**Reference:** [GitHub Actions](https://docs.github.com/en/actions)
+
 #### Security and Supply Chain Controls
 
 The planned controls include:
@@ -179,6 +192,7 @@ Official technical and academic sources will be added when the related<br/>
 implementation decisions and controls are documented and validated.
 
 - [JaCoCo Maven Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
+
 #### Development Status and Limitations
 
 The REST API and nine automated tests have passed local validation.<br/>
