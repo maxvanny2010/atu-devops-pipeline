@@ -112,8 +112,40 @@ The 80% Quality Gate passed successfully.
 
 **Date:** 17 November 2026
 
-Created a GitHub Actions workflow for Maven tests and JaCoCo.<br/>
-Local actionlint validation passed. GitHub execution remains unverified.
+Created a GitHub Actions workflow using Java 21 and Maven verification.<br/>
+Local actionlint validation passed. Feature-branch push triggers were added.<br/>
+GitHub Actions run `44083764858` succeeded, including the build, tests,<br/>
+coverage gate and uploaded test and JaCoCo report artifacts.
+
+#### Entry 005 - SonarQube Static Analysis
+
+**Date:** 17 November 2026
+
+**Objective:** Evaluate Java code quality using SonarQube Community Build.
+
+**Validation and findings:**
+
+- Started a local SonarQube Community Build server using Docker.
+- Analyzed the Maven project with its JaCoCo XML coverage report.
+- Initial Quality Gate passed; coverage was 90.2% with 0.0% duplications.
+- SonarQube reported one high-impact Reliability issue (rule `java:S9427`).
+- The issue concerned a Java `assert` in `TaskApiIntegrationTest.java`.
+- Replaced `assert location != null;` with JUnit `assertNotNull(location);`.
+
+**Reflection:**
+
+The existing assertion provided a practical validation of static analysis.<br/>
+Unlike JUnit assertions, Java `assert` may be disabled without JVM `-ea`.<br/>
+The finding demonstrated that passing tests and a passing Quality Gate do<br/>
+not necessarily mean that all code quality issues have been addressed.
+
+**Retest outcome:**
+
+Maven verification passed with all 9 tests and the JaCoCo 80% gate.<br/>
+The repeat SonarQube analysis passed its Quality Gate with 90.2% coverage,<br/>
+0.0% duplications, Reliability A and 0 open issues.<br/>
+Before-and-after screenshots were retained in `evidence/`.<br/>
+SonarQube Community Build has limited security analysis capabilities.
 
 ### 3. Future Journal Entries
 
