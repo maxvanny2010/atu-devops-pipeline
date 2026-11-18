@@ -353,6 +353,70 @@ needed to enforce that restriction.
 **Evidence:** See the Dependabot PR list, PR #6 checks, Trivy log,<br/>
 and manual negative-test run linked from the README.
 
+#### Entry 011 - Task Manager Frontend and Playwright E2E
+
+**Date:** 18 November 2026
+
+**Objective:** Add a usable browser interface to the existing REST API<br/>
+and test real user actions end to end.
+
+**Implementation:**
+
+- Built a responsive HTML, CSS, and JavaScript interface in Spring<br/>
+  Boot's `static` resources directory.
+- Added task creation, listing, completion toggling, deletion, refresh,<br/>
+  status counters, and error messages.
+- Used the existing `/api/tasks` endpoints with `fetch`, avoiding a<br/>
+  second frontend service and unnecessary CORS configuration.
+- Created four Chromium Playwright tests for loading, adding, updating,<br/>
+  and deleting tasks.
+- Added `package.json`, a lockfile, and the Playwright configuration.
+- Added a separate GitHub Actions workflow for E2E testing.
+
+**Problems encountered and responses:**
+
+The initial `npm init -y` and `npm install` failed because the existing<br/>
+`package.json` was empty, not valid JSON. I replaced the empty file<br/>
+with a minimal valid package definition and then installed Playwright.<br/>
+The dependency lockfile allows CI to use `npm ci` rather than resolving<br/>
+a new dependency tree on every run.
+
+The first Spring Boot startup failed because port 8080 was already in<br/>
+use. I ran the application on port 8081 instead and used that port in<br/>
+Playwright configuration and the proposed CI job. This avoids stopping<br/>
+an unrelated local service.
+
+**Verification (local, 18 November 2026):**
+
+| Check                       | Result        |
+|-----------------------------|---------------|
+| Frontend page loads         | ![PASS][pass] |
+| Create task in Chromium     | ![PASS][pass] |
+| Change task completion      | ![PASS][pass] |
+| Delete task in Chromium     | ![PASS][pass] |
+| JavaScript syntax checks    | ![PASS][pass] |
+| Playwright test discovery   | ![PASS][pass] |
+| `actionlint` workflow check | ![PASS][pass] |
+
+All four Playwright tests passed locally in 8.4 seconds. The workflow<br/>
+passed `actionlint`, and eight implementation files were staged with<br/>
+no errors from `git diff --cached --check`.
+
+**Reflection:** A working API and passing Java tests did not show<br/>
+whether a user could create or update tasks in a real browser. The<br/>
+Playwright tests cover these actions and check the resulting API state.<br/>
+Keeping the frontend small makes it easier to focus on the CI/CD<br/>
+assignment instead of frontend framework setup. The separate browser<br/>
+workflow also makes E2E failures easier to identify independently of<br/>
+Java tests and Docker security results.
+
+**Limitations and next verification:** The four E2E tests cover basic<br/>
+CRUD flows, not every validation error, accessibility concern, or<br/>
+concurrent update. The new workflow has not run on GitHub Actions yet.<br/>
+Only local E2E results are recorded as PASS. After a feature-branch<br/>
+push, the GitHub run and its uploaded artifacts must be reviewed before<br/>
+calling CI verification complete.
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation,<br/>
