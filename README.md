@@ -38,7 +38,7 @@ procedures.
 The REST API, automated Maven tests, JaCoCo coverage gate, Java CI,<br/>
 SonarQube analysis, Docker build, and Trivy scanning have been<br/>
 verified. Docker runtime smoke testing has passed locally. Its<br/>
-GitHub Actions execution has not yet been verified.
+GitHub Actions execution passed on 18 November 2026.
 
 #### Technology Stack
 
@@ -250,13 +250,30 @@ The security checks use `docker inspect`. On failure, the script<br/>
 prints container logs and removes the temporary container.
 
 The API check is a smoke test, not full JSON schema validation. The<br/>
-new workflow step has not yet been verified in GitHub Actions.
+runtime smoke test passed in GitHub Actions.
 
 #### Docker Runtime Smoke Test Evidence
 
 ![Docker CI workflows](evidence/docker-ci-workflows.png)
 
 ![Docker runtime smoke test](evidence/docker-runtime-smoke-test.png)
+
+#### Negative Docker Runtime Tests
+
+Negative runtime tests are executed on demand through<br/>
+`.github/workflows/docker-negative-tests.yml`.
+
+The workflow builds the application image and executes<br/>
+`scripts/docker/negative-tests.sh`.
+
+| Scenario               | Observed failure      | Result        |
+|------------------------|-----------------------|---------------|
+| Incorrect UID          | Exit 1; UID mismatch  | ![PASS][pass] |
+| Invalid container port | Exit 1; port rejected | ![PASS][pass] |
+| Missing API endpoint   | HTTP 404; exit 22     | ![PASS][pass] |
+
+All three scenarios passed local verification on 18 November 2026.<br/>
+Manual GitHub Actions execution remains to be verified.
 
 #### Monitoring and Logging
 
@@ -286,8 +303,7 @@ Only observed results are described as verified.
 #### References
 
 - [GitHub Actions](https://docs.github.com/en/actions)
-- [JaCoCo Maven
-  Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
+- [JaCoCo Maven Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
 - [GitHub Engineering: Dependabot][github-dependabot]
 - [Reddit Engineering: Dependency management][reddit-dependencies]
 - [GitHub Dependabot Documentation][dependabot-docs]

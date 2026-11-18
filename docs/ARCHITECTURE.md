@@ -268,6 +268,49 @@ Rollout verification
 
 Deployment workflows are serialised per target environment.
 
+## Negative Docker Runtime Testing
+
+### Manual Verification Workflow
+
+| Component                   | Responsibility                      |
+|-----------------------------|-------------------------------------|
+| `docker-negative-tests.yml` | Manual GitHub Actions workflow      |
+| `negative-tests.sh`         | Execute expected-failure scenarios  |
+| `smoke-test.sh`             | Validate runtime configuration      |
+| Docker                      | Build and run the application image |
+
+### Execution Flow
+
+```text
+Manual workflow_dispatch
+          |
+          v
+     Checkout code
+          |
+          v
+    Build Docker image
+          |
+          v
+    Negative test suite
+          |
+          +-- Incorrect UID
+          +-- Invalid container port
+          +-- Missing API endpoint
+          |
+          v
+    Verify exit codes
+    and error messages
+          |
+          v
+    Test suite result
+```
+
+The negative-test workflow is independent of the regular Docker<br/>
+build, positive smoke test, and Trivy security scan.
+
+Each scenario must produce its expected nonzero exit code and<br/>
+matching diagnostic message for the test suite to pass.
+
 ## Security Architecture
 
 - Minimum GitHub Actions permissions and full SHA-pinned

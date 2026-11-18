@@ -301,9 +301,36 @@ Kubernetes deployment.
 | REST API smoke response               | ![PASS][pass] |
 
 **Limitations:** HTTP smoke checks do not replace full integration<br/>
-tests or security testing. The new smoke-test step has not yet<br/>
-passed on a GitHub Actions runner. Negative security tests remain a<br/>
-separate task.
+tests or security testing. The Docker runtime smoke test passed in GitHub Actions.<br/>
+Negative runtime verification is provided separately.
+
+#### Entry 009 - Negative Docker Runtime Tests
+
+**Date:** 18 November 2026
+
+**Objective:** Verify that runtime checks reject incorrect<br/>
+configuration and unavailable API endpoints.
+
+**Implementation:**
+
+- Implemented `scripts/docker/negative-tests.sh`.
+- Defined a manually triggered GitHub Actions workflow.
+- Kept negative verification separate from regular Docker CI.
+- Checked both exit codes and diagnostic error messages.
+
+**Local verification:**
+
+| Scenario               | Exit code | Result        |
+|------------------------|----------:|---------------|
+| Incorrect UID          |         1 | ![PASS][pass] |
+| Invalid container port |         1 | ![PASS][pass] |
+| Missing API endpoint   |        22 | ![PASS][pass] |
+
+**Engineering decision:** Negative scenarios validate the test<br/>
+mechanism itself and do not need to run on every application push.
+
+**Verification scope:** Local tests passed. The manual workflow<br/>
+has not yet been executed in GitHub Actions.
 
 ### 3. Future Journal Entries
 
