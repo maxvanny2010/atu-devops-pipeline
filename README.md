@@ -390,6 +390,28 @@ Reddit Engineering describes previous Dependabot usage and migration<br/>
 to Renovate; it is not evidence of current Reddit production use of<br/>
 Dependabot.
 
+#### Playwright CI Failure and Fix Evidence
+
+The first Playwright GitHub Actions run passed three of four tests.
+The completion test failed because it checked the API state before
+waiting for the asynchronous HTTP PATCH response.
+
+The test was updated to wait for the matching PATCH response
+before verifying the persisted task status.
+
+| Verification               | Result              |
+|----------------------------|---------------------|
+| Initial GitHub Actions run | FAIL: 3/4           |
+| Repeated completion test   | PASS: 10/10 locally |
+| Full E2E suite after fix   | PASS: 4/4 locally   |
+| GitHub Actions after fix   | Pending             |
+
+![First CI failure](evidence/playwright-ci-race-failure_1.png)
+
+![CI failure details](evidence/playwright-ci-race-failure_2.png)
+
+![Repeated completion test](evidence/playwright-race-fix-repeat.png)
+
 #### Development Status and Limitations
 
 Backend tests, quality checks, Docker build, positive smoke tests,<br/>

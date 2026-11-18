@@ -54,7 +54,15 @@ test("marks a task as completed", async ({page, request}) => {
         });
 
         await expect(checkbox).not.toBeChecked();
+        const patchResponse = page.waitForResponse(response =>
+            response.url().endsWith(`/api/tasks/${created.id}`) &&
+            response.request().method() === "PATCH"
+        );
+
         await checkbox.check();
+
+        const response = await patchResponse;
+        expect(response.status()).toBe(200);
         await expect(checkbox).toBeChecked();
 
         const updated = await request.get(`/api/tasks/${created.id}`);

@@ -417,6 +417,60 @@ Only local E2E results are recorded as PASS. After a feature-branch<br/>
 push, the GitHub run and its uploaded artifacts must be reviewed before<br/>
 calling CI verification complete.
 
+#### Entry 012 - Playwright CI Race Condition
+
+**Date:** 18 November 2026
+
+**Objective:** Investigate a Playwright test that passed locally
+but failed in GitHub Actions.
+
+**Problem:**
+
+The first GitHub Actions E2E run passed three tests and failed one.
+The completion test expected `completed: true`, but the backend
+returned `completed: false`.
+
+**Analysis:**
+
+The frontend sends an asynchronous PATCH request when the user
+checks a task. The original test checked the checkbox and then
+immediately requested the task state through the API.
+
+Checking the checkbox did not guarantee that the PATCH request
+had completed. This created a likely race condition.
+
+**Solution:**
+
+I changed the Playwright test to wait for the matching HTTP PATCH
+response using `page.waitForResponse()`.
+
+The test checks HTTP 200 before requesting the stored task state.
+
+**Verification:**
+
+| Test                       | Result      |
+|----------------------------|-------------|
+| Initial GitHub Actions run | FAIL: 3/4   |
+| Repeated completion test   | PASS: 10/10 |
+| Full local E2E suite       | PASS: 4/4   |
+| GitHub Actions after fix   | Pending     |
+
+**Reflection:**
+
+A test that passes locally can still fail in CI due to differences
+in request timing. The original test verified the browser checkbox
+but did not synchronise with the backend operation.
+
+Waiting for the actual HTTP response is more reliable than adding
+a fixed delay. This was a test synchronisation problem based on
+the observed behavior, although the CI rerun is still needed.
+
+**Evidence:**
+
+- `evidence/playwright-ci-race-failure_1.png`
+- `evidence/playwright-ci-race-failure_2.png`
+- `evidence/playwright-race-fix-repeat.png`
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation,<br/>
