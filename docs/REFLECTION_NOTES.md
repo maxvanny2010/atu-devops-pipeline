@@ -255,8 +255,8 @@ updates.
 updates still require review and a passing CI pipeline before<br/>
 merging.
 
-**Verification status:** Configuration is present on the feature<br/>
-branch. Dependabot update PR creation has not yet been verified.
+**Verification:** Dependabot opened four update PRs after the Docker<br/>
+work reached `master`. CI checks ran on those PRs.
 
 #### Entry 008 - Automated Docker Runtime Smoke Tests
 
@@ -301,36 +301,57 @@ Kubernetes deployment.
 | REST API smoke response               | ![PASS][pass] |
 
 **Limitations:** HTTP smoke checks do not replace full integration<br/>
-tests or security testing. The Docker runtime smoke test passed in GitHub Actions.<br/>
-Negative runtime verification is provided separately.
+tests or security scanning. The Docker runtime smoke test passed in<br/>
+GitHub Actions; negative cases are checked by a separate workflow.
 
 #### Entry 009 - Negative Docker Runtime Tests
 
 **Date:** 18 November 2026
 
-**Objective:** Verify that runtime checks reject incorrect<br/>
-configuration and unavailable API endpoints.
+The positive smoke test checks a correctly configured container.<br/>
+I added three negative cases to confirm that the script also reports<br/>
+expected failures instead of returning success for every input.
 
-**Implementation:**
+| Scenario                   | Actual exit code | Result        |
+|----------------------------|-----------------:|---------------|
+| Incorrect UID              |                1 | ![PASS][pass] |
+| Invalid container port     |                1 | ![PASS][pass] |
+| Missing API endpoint (404) |               22 | ![PASS][pass] |
 
-- Implemented `scripts/docker/negative-tests.sh`.
-- Defined a manually triggered GitHub Actions workflow.
-- Kept negative verification separate from regular Docker CI.
-- Checked both exit codes and diagnostic error messages.
+The tests compare exit codes and error text. All three passed locally<br/>
+and in a manual GitHub Actions run. I kept them outside the regular<br/>
+CI workflow because they check the test mechanism, not each new build.
 
-**Local verification:**
+#### Entry 010 - Dependabot and Trivy Security Gate
 
-| Scenario               | Exit code | Result        |
-|------------------------|----------:|---------------|
-| Incorrect UID          |         1 | ![PASS][pass] |
-| Invalid container port |         1 | ![PASS][pass] |
-| Missing API endpoint   |        22 | ![PASS][pass] |
+**Date:** 18 November 2026
 
-**Engineering decision:** Negative scenarios validate the test<br/>
-mechanism itself and do not need to run on every application push.
+Once the Docker changes were merged, Dependabot opened four update<br/>
+PRs. This confirmed that the dependency update configuration worked.<br/>
+The PRs were automatically tested by Java CI and Docker CI.
 
-**Verification scope:** Local tests passed. The manual workflow<br/>
-has not yet been executed in GitHub Actions.
+PR #6 proposed changing the Java runtime image from version 21 to 24.<br/>
+The Java checks and Docker runtime smoke test passed. Trivy then found<br/>
+16 HIGH vulnerabilities in the Ubuntu 24.04 image and exited with<br/>
+code 1. The Docker check failed, although the PR remained open.
+
+| PR #6 check                 | Result        |
+|-----------------------------|---------------|
+| Java CI                     | ![PASS][pass] |
+| Docker build and smoke test | ![PASS][pass] |
+| Trivy: 16 HIGH, 0 CRITICAL  | Failed check  |
+
+The result changed how I view dependency upgrades: a newer base image<br/>
+is not automatically a safer one. Testing and scanning need to happen<br/>
+before a dependency update is accepted. I kept the project on Java 21<br/>
+and did not merge the suggested major-version update.
+
+The scan failed the PR check, but failed checks alone do not guarantee<br/>
+that a merge is blocked. A branch protection rule or ruleset would be<br/>
+needed to enforce that restriction.
+
+**Evidence:** See the Dependabot PR list, PR #6 checks, Trivy log,<br/>
+and manual negative-test run linked from the README.
 
 ### 3. Future Journal Entries
 

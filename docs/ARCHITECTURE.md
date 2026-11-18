@@ -102,8 +102,7 @@ separate trust contexts.
 - GitHub Actions dependencies use full commit SHA references.
 - CI concurrency cancels superseded branch runs.
 
-The new Docker smoke-test step is not yet verified on a GitHub<br/>
-runner.
+The Docker runtime smoke-test step passed in GitHub Actions.
 
 ## Docker Build Architecture
 
@@ -160,7 +159,7 @@ paths are configurable through environment variables.
 | Spring Boot health endpoint           | ![PASS][pass] |
 | REST API smoke response               | ![PASS][pass] |
 
-**Verification:** Local PASS. GitHub Actions smoke-test run pending.
+**Verification:** Local and GitHub Actions smoke tests passed.
 
 ## Release and Supply Chain Architecture
 
@@ -270,46 +269,62 @@ Deployment workflows are serialised per target environment.
 
 ## Negative Docker Runtime Testing
 
-### Manual Verification Workflow
+The negative checks use a separate GitHub Actions workflow with only<br/>
+`workflow_dispatch`. They do not run on pushes or Pull Requests.
 
-| Component                   | Responsibility                      |
-|-----------------------------|-------------------------------------|
-| `docker-negative-tests.yml` | Manual GitHub Actions workflow      |
-| `negative-tests.sh`         | Execute expected-failure scenarios  |
-| `smoke-test.sh`             | Validate runtime configuration      |
-| Docker                      | Build and run the application image |
-
-### Execution Flow
+| Component                   | Responsibility                   |
+|-----------------------------|----------------------------------|
+| `docker-negative-tests.yml` | Manual workflow and image build  |
+| `negative-tests.sh`         | Run three expected-failure cases |
+| `smoke-test.sh`             | Report failed runtime checks     |
 
 ```text
-Manual workflow_dispatch
-          |
-          v
-     Checkout code
-          |
-          v
-    Build Docker image
-          |
-          v
-    Negative test suite
-          |
-          +-- Incorrect UID
-          +-- Invalid container port
-          +-- Missing API endpoint
-          |
-          v
-    Verify exit codes
-    and error messages
-          |
-          v
-    Test suite result
+Manual Run workflow
+        |
+        v
+Build Docker image
+        |
+        v
+Run negative-tests.sh
+        |
+        +-- Incorrect UID
+        +-- Invalid port
+        +-- Missing API endpoint
+        |
+        v
+Check exit codes and error messages
 ```
 
-The negative-test workflow is independent of the regular Docker<br/>
-build, positive smoke test, and Trivy security scan.
+The three scenarios passed in GitHub Actions on 18 November 2026.<br/>
+These checks test failure handling; they are not a substitute for<br/>
+container vulnerability scanning or runtime security inspection.
 
-Each scenario must produce its expected nonzero exit code and<br/>
-matching diagnostic message for the test suite to pass.
+## Dependency Update and Security Checks
+
+Dependabot checks Maven, Docker and GitHub Actions dependencies and<br/>
+opens separate PRs for proposed updates. Each PR triggers Java CI and<br/>
+the Docker workflow, including its Trivy scan.
+
+```text
+Dependabot update
+       |
+       v
+   Pull Request
+       |
+       +--> Java CI
+       |
+       +--> Docker build --> Runtime smoke test --> Trivy
+                                                  |
+                                             PASS or FAIL
+       |
+       v
+   Human review and merge decision
+```
+
+PR #6 proposed a Java 21 to Java 24 runtime image change. The image<br/>
+built and passed its smoke test, but Trivy reported 16 HIGH findings<br/>
+in Ubuntu 24.04 and returned exit code 1. The check failed. Branch<br/>
+protection is required if failed checks must technically block merge.
 
 ## Security Architecture
 

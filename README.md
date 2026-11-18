@@ -35,10 +35,10 @@ procedures.
 
 #### Project Status
 
-The REST API, automated Maven tests, JaCoCo coverage gate, Java CI,<br/>
-SonarQube analysis, Docker build, and Trivy scanning have been<br/>
-verified. Docker runtime smoke testing has passed locally. Its<br/>
-GitHub Actions execution passed on 18 November 2026.
+The REST API, Maven tests, JaCoCo gate, Java CI, SonarQube, and Docker<br/>
+build have passed verification. Runtime smoke tests also passed in<br/>
+GitHub Actions. Dependabot created update PRs, and the separate<br/>
+negative-test workflow passed all three checks on 18 November 2026.
 
 #### Technology Stack
 
@@ -183,8 +183,8 @@ Workflow security and maintenance controls include:
 - Dependabot configuration for Maven, Docker, and GitHub Actions.
 - Weekly dependency update checks and reviewable update requests.
 
-Dependabot configuration is committed on the feature branch.<br/>
-Creation of update Pull Requests has not yet been verified.
+Dependabot created four update PRs after the Docker work was merged<br/>
+into `master`. Each PR was checked by the existing CI workflows.
 
 #### Docker Containerisation and Security Scanning
 
@@ -260,20 +260,48 @@ runtime smoke test passed in GitHub Actions.
 
 #### Negative Docker Runtime Tests
 
-Negative runtime tests are executed on demand through<br/>
-`.github/workflows/docker-negative-tests.yml`.
+The separate workflow `.github/workflows/docker-negative-tests.yml`<br/>
+runs only when started manually from GitHub Actions. It builds the<br/>
+image and runs `scripts/docker/negative-tests.sh`.
 
-The workflow builds the application image and executes<br/>
-`scripts/docker/negative-tests.sh`.
+| Scenario               | Observed failure       | Result        |
+|------------------------|------------------------|---------------|
+| Incorrect UID          | Exit 1; UID mismatch   | ![PASS][pass] |
+| Invalid container port | Exit 1; rejected value | ![PASS][pass] |
+| Missing API endpoint   | HTTP 404; exit 22      | ![PASS][pass] |
 
-| Scenario               | Observed failure      | Result        |
-|------------------------|-----------------------|---------------|
-| Incorrect UID          | Exit 1; UID mismatch  | ![PASS][pass] |
-| Invalid container port | Exit 1; port rejected | ![PASS][pass] |
-| Missing API endpoint   | HTTP 404; exit 22     | ![PASS][pass] |
+All three cases passed in the manual GitHub Actions run on<br/>
+18 November 2026. Each test checked the actual exit code and error<br/>
+message, rather than accepting a printed `PASS` alone.
 
-All three scenarios passed local verification on 18 November 2026.<br/>
-Manual GitHub Actions execution remains to be verified.
+![Manual negative runtime test results](evidence/docker-negative-runtime-tests.png)
+
+#### Dependabot Update Verification
+
+Dependabot opened four update PRs after the Docker changes reached<br/>
+`master`. The PRs triggered the same Java and Docker checks as other<br/>
+code changes. No dependency update was merged as part of this review.
+
+![Dependabot pull requests](evidence/dependabot-pull-requests.png)
+
+One proposal, PR #6, changed the runtime image from Java 21 to Java 24.<br/>
+Java CI passed, but the Docker scan failed. Trivy reported 16 HIGH<br/>
+findings and no CRITICAL findings in the Ubuntu 24.04 image. The scan<br/>
+returned exit code 1, leaving the PR with a failing check.
+
+| PR #6 validation                    | Observed result             |
+|-------------------------------------|-----------------------------|
+| Java CI                             | ![PASS][pass]               |
+| Docker build and runtime smoke test | ![PASS][pass]               |
+| Trivy scan                          | 16 HIGH, 0 CRITICAL; exit 1 |
+| Security gate                       | Failed the Docker CI check  |
+
+![Dependabot PR security check](evidence/dependabot-security-gate.png)
+
+![Trivy findings in Dependabot PR #6](evidence/dependabot-trivy-vulnerabilities.png)
+
+A failed check does not by itself prevent someone from pressing Merge.<br/>
+Enforcing a merge block requires a branch ruleset or protection rule.
 
 #### Monitoring and Logging
 
@@ -314,12 +342,11 @@ Dependabot.
 
 #### Development Status and Limitations
 
-Backend, Java CI, code coverage, SonarQube analysis, Docker build,<br/>
-Trivy scanning, and local Docker runtime smoke testing have been<br/>
-verified. GitHub Actions verification of the new smoke-test step<br/>
-remains outstanding. Frontend, Kubernetes, release automation,<br/>
-supply-chain attestations, observability, and negative security<br/>
-scenarios require further validation.
+Backend tests, quality checks, Docker build, positive smoke tests,<br/>
+Trivy scanning, and manual negative tests are verified in GitHub<br/>
+Actions. Dependabot PR creation is also verified. Frontend E2E,<br/>
+Kubernetes, release automation, supply-chain attestations, and<br/>
+observability are not yet verified.
 
 [pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
 
