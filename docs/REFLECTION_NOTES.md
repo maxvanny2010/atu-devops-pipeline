@@ -188,7 +188,63 @@ Runtime validation revealed permission and startup issues that automated
 build checks alone could not detect. Layered packaging also demonstrated
 the benefits of separating application code from dependencies.
 
-**Pending:** Verify the Docker security workflow on GitHub Actions.
+**Additional verification:** GitHub Actions Docker build and Trivy scan run 44162103286 passed.
+
+
+#### Entry 007 - CI Hardening and Dependency Management
+
+**Date:** 18 November 2026
+
+**Objective:** Improve CI pipeline security, dependency maintenance and
+execution efficiency without introducing unnecessary administrative privileges.
+
+**Implementation:**
+
+- Added concurrency control to the Docker security workflow.
+- Preserved existing concurrency control in the Java CI workflow.
+- Pinned GitHub Actions to full commit SHA references.
+- Preserved minimal workflow permissions (`contents: read`).
+- Configured Dependabot for GitHub Actions, Maven and Docker dependencies.
+
+**Engineering decisions:**
+
+Full commit SHA pinning prevents an existing workflow reference from
+silently resolving to a different Action implementation when a tag moves.
+
+Dependabot provides a controlled update mechanism through pull requests,
+allowing pinned dependencies to be updated without abandoning reproducibility.
+
+Concurrency cancellation was enabled only for CI workflows. Future deployment
+workflows will use a separate concurrency policy to avoid interrupting active
+deployments.
+
+**Industry context and design rationale:**
+
+Dependabot was introduced after implementing Docker and Trivy to address
+the ongoing maintenance of vulnerable or outdated dependencies.
+
+GitHub Engineering documents operational use of Dependabot.
+Reddit Engineering has discussed previous Dependabot adoption and
+its subsequent migration to Renovate for more advanced requirements.
+
+This supports the decision to automate dependency update proposals
+while keeping testing, review and release approval separate.
+
+References:
+- https://github.blog/engineering/platform-security/how-we-use-dependabot-to-secure-github/
+- https://www.reddit.com/r/RedditEng/comments/1s1q879/dependency_hell_aka_how_i_learned_to_stop/
+**Trade-offs:**
+
+Pinned dependencies require ongoing maintenance. Automated dependency update
+pull requests reduce manual work but do not replace review or testing.
+
+**Pending verification:**
+
+- Validate the configuration through GitHub.
+- Verify Dependabot update pull request creation when updates become available.
+- Implement Docker runtime smoke tests.
+- Implement negative security tests.
+- Add artifact digest and provenance controls.
 
 ### 3. Future Journal Entries
 

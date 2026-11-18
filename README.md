@@ -28,7 +28,7 @@ orchestration, monitoring, and recovery procedures.
 
 #### Project Status
 
-**Current phase:** REST API, automated tests, JaCoCo and GitHub Actions CI verified.<br/>
+**Current phase:** Backend, Java CI, JaCoCo, Docker build and Trivy scanning verified.<br/>
 Local SonarQube analysis passed; frontend, deployment and monitoring are planned.
 
 #### Technologies
@@ -142,7 +142,7 @@ The planned controls include:
 **Dependency remediation verified locally:** H2 `2.4.240` → `2.5.252`;<br/>
 json-smart `2.6.0` → `2.6.1`; ASM `9.7.1` → `9.11.1` (test scope).<br/>
 Jackson Databind `3.1.7` was retained. Maven dependency resolution and tests passed.<br/>
-A full vulnerability scan and enforced security gate remain planned.
+Docker image scanning and the Trivy HIGH/CRITICAL security gate passed; negative security tests remain planned.
 
 #### SonarQube Static Analysis
 
@@ -200,13 +200,9 @@ Separating application code from dependencies improves Docker layer caching.
 - [x] No HIGH or CRITICAL vulnerabilities detected.
 - [x] Local Trivy Security Gate passed with exit code 0.
 
-**Trivy Security Scan Evidence**
-
-![Trivy image scan results](evidence/trivy-image-scan.png)
-
 The GitHub Actions Docker security workflow builds the container image and
 uses Trivy with `exit-code: 1` for HIGH and CRITICAL vulnerabilities.<br/>
-Successful execution of this workflow on GitHub remains to be verified.
+GitHub Actions Docker build and Trivy scan run 44162103286 passed. CI runtime smoke tests remain planned.
 
 #### Monitoring and Logging
 
@@ -251,5 +247,38 @@ implementation decisions and controls are documented and validated.
 
 The REST API and nine automated tests have passed local validation.<br/>
 JaCoCo, GitHub Actions CI and local SonarQube analysis have been verified.<br/>
-The frontend, container delivery, monitoring and a full vulnerability gate<br/>
-remain unimplemented or unverified.
+Docker image build and Trivy scanning passed locally and in GitHub Actions.<br/>
+Frontend, Kubernetes deployment, monitoring and negative security tests remain planned.
+
+#### CI Hardening and Dependency Management
+
+**Engineering rationale:**
+
+Dependabot was introduced after Docker containerization and Trivy
+scanning to support controlled maintenance of Docker base images,
+Maven dependencies and SHA-pinned GitHub Actions.
+
+It proposes dependency updates through reviewable pull requests.
+This reduces manual maintenance while preserving CI reproducibility.
+Dependabot update PR generation has not yet been verified.
+
+**Industry references:**
+
+- [GitHub Engineering - Dependabot](https://github.blog/engineering/platform-security/how-we-use-dependabot-to-secure-github/)
+- [Reddit Engineering - Dependency management](https://www.reddit.com/r/RedditEng/comments/1s1q879/dependency_hell_aka_how_i_learned_to_stop/)
+- [GitHub Dependabot documentation](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-version-updates)
+
+The GitHub Actions workflows apply the following security and reliability controls:
+
+- Explicit read-only repository permissions (`contents: read`).
+- Full commit SHA pinning for third-party and official GitHub Actions.
+- Workflow concurrency groups to cancel outdated CI runs on the same branch.
+- Dependabot configuration for GitHub Actions, Maven and Docker dependencies.
+- Weekly Dependabot update checks configured; update PR generation not yet verified.
+- Dependency updates are reviewed and validated through CI before merging.
+
+These controls reduce unnecessary workflow privileges, improve dependency
+traceability and prevent superseded CI runs from consuming resources.
+
+Docker base image digest pinning and release artifact provenance are handled
+as separate supply-chain hardening activities.

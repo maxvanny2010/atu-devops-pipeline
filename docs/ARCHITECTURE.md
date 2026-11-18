@@ -75,7 +75,7 @@ It executes unit and integration tests and the JaCoCo coverage gate.<br/>
 Test reports are retained as artifacts for inspection.
 
 The YAML passed local actionlint validation.<br/>
-Remote workflow execution has not yet been verified.
+Java CI and Docker/Trivy GitHub Actions workflows passed.
 ## Release and Supply Chain
 
 After successful validation of trusted code:
@@ -107,7 +107,7 @@ A dedicated deployment runner is separated from untrusted PR jobs.
 
 Verified dependency updates: H2 `2.5.252` (runtime), json-smart `2.6.1`<br/>
 and ASM `9.11.1` (test scope). Maven dependency resolution and local tests<br/>
-passed. Automated vulnerability scanning is not yet configured.
+passed. Trivy Docker image scanning is configured and verified; negative tests remain planned.
 
 - Restricted GitHub Actions permissions.
 - No deployment credentials in untrusted pull request jobs.
@@ -146,4 +146,5 @@ All implementation claims must be supported by actual verification.
 ## Architecture Status
 
 REST API and local automated tests implemented and validated.<br/>
-CI/CD, JaCoCo, frontend, deployment and observability remain planned.
+Java CI, JaCoCo, Docker build and Trivy scanning are implemented.<br/>
+Frontend, Kubernetes deployment and observability remain planned.
