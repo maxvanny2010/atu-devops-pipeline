@@ -404,13 +404,15 @@ before verifying the persisted task status.
 | Initial GitHub Actions run | FAIL: 3/4           |
 | Repeated completion test   | PASS: 10/10 locally |
 | Full E2E suite after fix   | PASS: 4/4 locally   |
-| GitHub Actions after fix   | Pending             |
+| GitHub Actions after fix | PASS: 4/4 E2E |
 
 ![First CI failure](evidence/playwright-ci-race-failure_1.png)
 
 ![CI failure details](evidence/playwright-ci-race-failure_2.png)
 
 ![Repeated completion test](evidence/playwright-race-fix-repeat.png)
+
+![Successful Playwright CI](evidence/playwright-ci-success.png)
 
 #### Development Status and Limitations
 

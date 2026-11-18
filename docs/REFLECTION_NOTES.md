@@ -453,7 +453,7 @@ The test checks HTTP 200 before requesting the stored task state.
 | Initial GitHub Actions run | FAIL: 3/4   |
 | Repeated completion test   | PASS: 10/10 |
 | Full local E2E suite       | PASS: 4/4   |
-| GitHub Actions after fix   | Pending     |
+| GitHub Actions after fix | PASS: 4/4 E2E |
 
 **Reflection:**
 
@@ -470,6 +470,7 @@ the observed behavior, although the CI rerun is still needed.
 - `evidence/playwright-ci-race-failure_1.png`
 - `evidence/playwright-ci-race-failure_2.png`
 - `evidence/playwright-race-fix-repeat.png`
+- `evidence/playwright-ci-success.png`
 
 ### 3. Future Journal Entries
 
