@@ -1,13 +1,29 @@
-## Development and Reflection Notes
+### Development and Reflection Notes
+
+**Atlantic Technological University (ATU)**
+
+**Programme:** Postgraduate Diploma in Computing in DevOps<br/>
+**Module:** DevOps Software Engineering<br/>
+**Lecturer:** Maria Griffin<br/>
+**Student:** Maksym Voronianskyi<br/>
+**Student Number:** L00213593<br/>
+**Academic Year:** 2026/2027
+
+**Technologies:** Java 21, Spring Boot, Maven, JUnit, Mockito,<br/>
+JaCoCo, Git, GitHub Actions, SonarQube, Trivy, Dependabot, Docker,<br/>
+Docker Compose, HTML, CSS, JavaScript, Playwright, GHCR, Kubernetes,<br/>
+Kustomize, Terraform, Actuator, Micrometer, Prometheus, Grafana,<br/>
+Slack, SBOM, Software Provenance, Image Signing, Semantic Versioning
+
+---
 
 ### Purpose
 
-This document records technical decisions, implementation challenges,<br/>
-alternative approaches, validation outcomes and lessons learned during<br/>
-the development of the CI/CD pipeline.
-
-The notes provide source material for Task 4: Reflective Analysis.<br/>
-Only observed results are presented as completed work.
+This document records technical decisions, engineering trade-offs,<br/>
+implementation outcomes, and verifiable evidence from development of<br/>
+the CI/CD pipeline. It provides source material for Task 4:<br/>
+Reflective Analysis. Only observed results are represented as<br/>
+completed work.
 
 ### 1. Initial Architecture Decisions
 
@@ -15,254 +31,299 @@ Only observed results are presented as completed work.
 
 #### Project Scope
 
-The project uses a small Java Spring Boot Task Manager application.<br/>
-The application is intentionally simple so the main focus remains on<br/>
-automated delivery, security, reliability and observability.
+A small Spring Boot Task Manager is used so that the central<br/>
+engineering focus remains automated delivery, security, reliability,<br/>
+and observability.
 
 #### CI/CD Platform
 
-GitHub Actions was selected for CI/CD automation.<br/>
-Jenkins was considered as an alternative. GitHub Actions provides native<br/>
-repository integration without maintaining a dedicated Jenkins server.
+GitHub Actions was selected for CI/CD automation. Jenkins was<br/>
+considered as an alternative, but GitHub Actions integrates directly<br/>
+with the repository without maintaining a dedicated Jenkins server.
 
 #### Testing Strategy
 
-The planned test strategy includes:
-
-- JUnit and Mockito for unit testing.
-- Spring Boot integration and API testing.
-- Playwright for browser-based frontend testing.
-- JaCoCo for code coverage and quality enforcement.
+The testing approach combines JUnit, Mockito, Spring Boot<br/>
+integration tests, Playwright browser tests, and JaCoCo coverage<br/>
+enforcement.
 
 #### Security Strategy
 
-SonarQube and Trivy were selected for code quality and vulnerability<br/>
-scanning. Other planned controls address secrets, workflow permissions,<br/>
-container security and software supply chain integrity.
+SonarQube and Trivy provide code quality and vulnerability scanning.<br/>
+Further controls address workflow permissions, container privileges,<br/>
+secrets, dependency maintenance, and software supply chain<br/>
+integrity.
 
 #### Deployment Strategy
 
-Docker and Kubernetes were selected for containerization and orchestration.<br/>
-Terraform will be considered where it adds a clear technical benefit<br/>
-to reproducible infrastructure provisioning.
+Docker provides reproducible packaging; Kubernetes provides<br/>
+orchestration. Terraform may be used where infrastructure<br/>
+provisioning adds clear value.
 
 #### Monitoring Strategy
 
-Prometheus and Grafana were selected for application metrics and dashboards.<br/>
-Slack is planned for pipeline feedback and operational notifications.
+Spring Boot Actuator, Micrometer, Prometheus, and Grafana form the<br/>
+observability design. Slack provides operational notifications.
 
 #### Release Strategy
 
-Conventional Commits and Semantic Versioning were selected.<br/>
-Automated release management is planned after the core CI pipeline works.
+Conventional Commits and Semantic Versioning support release<br/>
+traceability. Versioned artifacts will be linked to immutable<br/>
+container digests.
 
 ### 2. Implementation Journal
 
 #### Entry 001 - Repository Initialisation
 
-**Date:** 16 November 2026<br/>
+**Date:** 16 November 2026
+
 **Objective:** Establish the Git repository and project structure.
 
 **Completed:**
 
-- Created the local Git repository.
-- Created and published the initial Git branches and GitHub repository.
-- Consolidated setup changes into one initial commit on `master`.
-- Established the initial README and Git ignore rules.
-
-**Challenge:**
-
-The original project structure contained more documentation files than<br/>
-necessary for the assignment.
+- Created the local repository and published the initial GitHub
+  project.
+- Established `master` and feature branch workflow.
+- Consolidated initial setup into one commit.
+- Established README and ignore rules.
 
 **Decision:**
 
-Consolidate technical documentation into README and ARCHITECTURE.<br/>
-Maintain separate Reflection Notes for Task 4.
+Keep the primary technical documentation in README and Architecture.<br/>
+Maintain separate Reflection Notes to support Task 4.
 
-**Outcome:**
-
-The Git repository and initial project structure were established.<br/>
-Application implementation and CI automation were deferred to later work.
+**Outcome:** Repository structure established for incremental<br/>
+development.
 
 #### Entry 002 - Task Manager REST API
 
-**Date:** 17 November 2026<br/>
-**Implemented:** Spring Boot 4.1.2 CRUD API, H2, validation and HTTP 400/404.
+**Date:** 17 November 2026
 
-**Challenges and fixes:**
+**Implemented:** Spring Boot 4.1.2 CRUD API, H2, validation, and<br/>
+HTTP 400/404.
 
-- Corrected the Spring Initializr parent version from `4.1.2.RELEASE` to `4.1.2`.
-- Avoided a Windows Maven cache lock by using a separate local repository.
-- Fixed invalid JSON string escaping in API integration tests.
-- Updated H2, json-smart and ASM after inspecting resolved dependency versions.
+**Engineering work:**
 
-**Verified:** Local Maven build succeeded; 9 tests passed, 0 failures or errors.<br/>
-**Not yet implemented:** JaCoCo, CI workflows, deployment and monitoring.
+- Corrected the Spring Initializr parent version to `4.1.2`.
+- Used an alternative local Maven repository to avoid a cache lock.
+- Corrected JSON escaping in API integration tests.
+- Updated H2, json-smart, and ASM based on resolved dependency
+  versions.
+
+| Verification              | Result        |
+|---------------------------|---------------|
+| Maven build               | ![PASS][pass] |
+| Nine automated tests      | ![PASS][pass] |
+| Zero test failures/errors | ![PASS][pass] |
 
 #### Entry 003 - JaCoCo Code Coverage
 
 **Date:** 17 November 2026
 
-JaCoCo 0.8.16 was integrated into Maven verification.<br/>
-All 9 tests passed with 88% instruction coverage.<br/>
-The 80% Quality Gate passed successfully.
+JaCoCo 0.8.16 was integrated into Maven verification. Nine automated<br/>
+tests passed with 88% instruction coverage. The 80% Quality Gate<br/>
+passed.
+
+| Verification     | Result        |
+|------------------|---------------|
+| Nine tests       | ![PASS][pass] |
+| Coverage: 88%    | ![PASS][pass] |
+| Minimum 80% gate | ![PASS][pass] |
 
 #### Entry 004 - GitHub Actions CI
 
 **Date:** 17 November 2026
 
-Created a GitHub Actions workflow using Java 21 and Maven verification.<br/>
-Local actionlint validation passed. Feature-branch push triggers were added.<br/>
-GitHub Actions run `44083764858` succeeded, including the build, tests,<br/>
-coverage gate and uploaded test and JaCoCo report artifacts.
+Created the Java 21 Maven CI workflow with automated testing,<br/>
+coverage, and test report artifact uploads. Feature-branch triggers<br/>
+were configured.
+
+| Verification                     | Result        |
+|----------------------------------|---------------|
+| Local actionlint                 | ![PASS][pass] |
+| GitHub Actions run `44083764858` | ![PASS][pass] |
+| Test report artifacts            | ![PASS][pass] |
 
 #### Entry 005 - SonarQube Static Analysis
 
 **Date:** 17 November 2026
 
-**Objective:** Evaluate Java code quality using SonarQube Community Build.
+**Objective:** Evaluate code quality using SonarQube Community<br/>
+Build.
 
-**Validation and findings:**
+**Implementation and findings:**
 
-- Started a local SonarQube Community Build server using Docker.
-- Analyzed the Maven project with its JaCoCo XML coverage report.
-- Initial Quality Gate passed; coverage was 90.2% with 0.0% duplications.
-- SonarQube reported one high-impact Reliability issue (rule `java:S9427`).
-- The issue concerned a Java `assert` in `TaskApiIntegrationTest.java`.
-- Replaced `assert location != null;` with JUnit `assertNotNull(location);`.
+- Analysed the Maven project using JaCoCo XML coverage data.
+- Obtained 90.2% coverage and 0.0% duplicated code.
+- Identified Reliability rule `java:S9427` in an integration test.
+- Replaced Java `assert` with JUnit `assertNotNull()`.
+- Repeated Maven verification and SonarQube analysis.
 
-**Reflection:**
+**Reflection:** A passing test suite does not eliminate all code<br/>
+quality issues. Static analysis detected an assertion that might be<br/>
+disabled in normal JVM execution without `-ea`.
 
-The existing assertion provided a practical validation of static analysis.<br/>
-Unlike JUnit assertions, Java `assert` may be disabled without JVM `-ea`.<br/>
-The finding demonstrated that passing tests and a passing Quality Gate do<br/>
-not necessarily mean that all code quality issues have been addressed.
+| Verification                 | Result        |
+|------------------------------|---------------|
+| Maven tests and JaCoCo gate  | ![PASS][pass] |
+| SonarQube Quality Gate       | ![PASS][pass] |
+| Reliability A, 0 open issues | ![PASS][pass] |
 
-**Retest outcome:**
-
-Maven verification passed with all 9 tests and the JaCoCo 80% gate.<br/>
-The repeat SonarQube analysis passed its Quality Gate with 90.2% coverage,<br/>
-0.0% duplications, Reliability A and 0 open issues.<br/>
-Before-and-after screenshots were retained in `evidence/`.<br/>
-SonarQube Community Build has limited security analysis capabilities.
+Before-and-after screenshots are retained under `evidence/`.
 
 #### Entry 006 - Docker Containerisation and Trivy Security
 
 **Date:** 17 November 2026
 
-**Objective:** Package and validate the Spring Boot application in a
-secure Docker container and introduce automated image security scanning.
+**Objective:** Package the application in a secure Docker image and<br/>
+introduce automated image vulnerability scanning.
 
 **Implementation:**
 
-- Implemented a three-stage Dockerfile using Java 21.
-- Used Maven to build, test and verify the application.
-- Extracted Spring Boot Layered JAR components for Docker layer caching.
-- Configured a non-root runtime user and read-only filesystem.
-- Removed Linux capabilities and disabled privilege escalation.
-- Added a separate GitHub Actions Docker build and Trivy scanning workflow.
+- Built a three-stage Dockerfile using Java 21.
+- Executed Maven tests and the coverage gate in the build stage.
+- Extracted the Spring Boot layered JAR for efficient caching.
+- Configured non-root application execution and a read-only rootfs.
+- Removed Linux capabilities and restricted privilege escalation.
+- Added a separate Docker build and Trivy GitHub Actions workflow.
 
-**Challenges and resolutions:**
+**Engineering decisions:**
 
-- Tomcat initially failed because the `tmpfs` directory was not writable
-  by the non-root user. Explicit UID/GID options resolved the issue.
-- The initial layered application entrypoint could not load `JarLauncher`.
-  Using the extracted `application.jar` resolved the startup problem.
-- Trivy initially exceeded its scan timeout. Increasing the timeout to
-  20 minutes allowed the image scan to complete.
+A writable `tmpfs` at `/app/tmp` allows application temporary files<br/>
+while keeping the root filesystem read-only. Explicit UID/GID mount<br/>
+options ensure the non-root application process can use this<br/>
+directory.
 
-**Verified results:**
+The extracted Spring Boot application uses the correct layered JAR<br/>
+entrypoint. Trivy scan execution was configured with an adequate<br/>
+timeout.
 
-- Three-stage Docker build succeeded.
-- Application health returned `UP`.
-- REST API responded successfully.
-- Runtime security configuration was verified.
-- Trivy 0.76.2 detected 0 HIGH/CRITICAL vulnerabilities.
-- The local Trivy Security Gate passed.
+**Reflection:** Building an image does not prove that it starts<br/>
+correctly. Runtime checks are required to validate actual<br/>
+permissions and application availability under the selected security<br/>
+restrictions.
 
-**Reflection:**
+| Verification                     | Result        |
+|----------------------------------|---------------|
+| Three-stage Docker image build   | ![PASS][pass] |
+| Application health and REST API  | ![PASS][pass] |
+| Runtime security configuration   | ![PASS][pass] |
+| Trivy 0.76.2 security gate       | ![PASS][pass] |
+| GitHub Actions run `44162103286` | ![PASS][pass] |
 
-A successful Docker build does not guarantee that a container can start.<br/>
-Runtime validation revealed permission and startup issues that automated
-build checks alone could not detect. Layered packaging also demonstrated
-the benefits of separating application code from dependencies.
-
-**Additional verification:** GitHub Actions Docker build and Trivy scan run 44162103286 passed.
-
+The cited GitHub Actions run covered image build and Trivy scanning.
 
 #### Entry 007 - CI Hardening and Dependency Management
 
 **Date:** 18 November 2026
 
-**Objective:** Improve CI pipeline security, dependency maintenance and
-execution efficiency without introducing unnecessary administrative privileges.
+**Objective:** Improve CI security, dependency maintenance, and<br/>
+efficiency.
 
 **Implementation:**
 
 - Added concurrency control to the Docker security workflow.
-- Preserved existing concurrency control in the Java CI workflow.
+- Preserved concurrency protection in the Java CI workflow.
 - Pinned GitHub Actions to full commit SHA references.
-- Preserved minimal workflow permissions (`contents: read`).
-- Configured Dependabot for GitHub Actions, Maven and Docker dependencies.
+- Kept minimum workflow permissions (`contents: read`).
+- Configured Dependabot for Maven, Docker, and GitHub Actions.
 
-**Engineering decisions:**
+**Engineering rationale:**
 
-Full commit SHA pinning prevents an existing workflow reference from
-silently resolving to a different Action implementation when a tag moves.
+SHA pinning prevents a movable tag from silently selecting different<br/>
+Action code. Dependabot can propose controlled upgrades as<br/>
+reviewable Pull Requests, retaining reproducibility without freezing<br/>
+dependencies.
 
-Dependabot provides a controlled update mechanism through pull requests,
-allowing pinned dependencies to be updated without abandoning reproducibility.
+CI runs can cancel superseded work. Deployment runs require a<br/>
+different policy to avoid interrupting active releases.
 
-Concurrency cancellation was enabled only for CI workflows. Future deployment
-workflows will use a separate concurrency policy to avoid interrupting active
-deployments.
+**Industry context:**
 
-**Industry context and design rationale:**
+GitHub Engineering describes operational Dependabot usage. Reddit<br/>
+Engineering has documented prior Dependabot use and its later<br/>
+migration to Renovate to support different dependency management<br/>
+requirements. Neither replaces testing and review of proposed<br/>
+updates.
 
-Dependabot was introduced after implementing Docker and Trivy to address
-the ongoing maintenance of vulnerable or outdated dependencies.
+**References:**
 
-GitHub Engineering documents operational use of Dependabot.
-Reddit Engineering has discussed previous Dependabot adoption and
-its subsequent migration to Renovate for more advanced requirements.
+- [GitHub Engineering: Dependabot][github-dependabot]
+- [Reddit Engineering: Dependency management][reddit-dependencies]
 
-This supports the decision to automate dependency update proposals
-while keeping testing, review and release approval separate.
+**Trade-off:** Pinned components require maintenance. Automated<br/>
+updates still require review and a passing CI pipeline before<br/>
+merging.
 
-References:
-- https://github.blog/engineering/platform-security/how-we-use-dependabot-to-secure-github/
-- https://www.reddit.com/r/RedditEng/comments/1s1q879/dependency_hell_aka_how_i_learned_to_stop/
-**Trade-offs:**
+**Verification status:** Configuration is present on the feature<br/>
+branch. Dependabot update PR creation has not yet been verified.
 
-Pinned dependencies require ongoing maintenance. Automated dependency update
-pull requests reduce manual work but do not replace review or testing.
+#### Entry 008 - Automated Docker Runtime Smoke Tests
 
-**Pending verification:**
+**Date:** 18 November 2026
 
-- Validate the configuration through GitHub.
-- Verify Dependabot update pull request creation when updates become available.
-- Implement Docker runtime smoke tests.
-- Implement negative security tests.
-- Add artifact digest and provenance controls.
+**Objective:** Verify that the built image runs the Spring Boot<br/>
+application under the configured Docker runtime security<br/>
+restrictions.
+
+**Implementation:**
+
+- Added reusable `scripts/docker/smoke-test.sh`.
+- Integrated the script into the Docker security workflow.
+- Kept runtime checks separate from CI orchestration.
+- Selected a dynamically allocated localhost host port.
+- Verified the image's non-root application user.
+- Inspected read-only rootfs, capability removal, and privilege
+  controls.
+- Checked `tmpfs` options, Spring Boot health, and the REST API.
+- Added container cleanup and failure diagnostic logging.
+
+**Engineering rationale:**
+
+A Docker build and vulnerability scan do not establish that the<br/>
+application can actually run with hardened runtime settings. The<br/>
+smoke test verifies these constraints and application availability<br/>
+before the security scan.
+
+A separate Bash script is reusable locally and in GitHub Actions.<br/>
+Dynamic host port discovery avoids conflicts with existing services.<br/>
+The security contract also defines requirements for future<br/>
+Kubernetes deployment.
+
+| Local verification (18 November 2026) | Result        |
+|---------------------------------------|---------------|
+| Bash syntax                           | ![PASS][pass] |
+| Docker image build                    | ![PASS][pass] |
+| Non-root image user                   | ![PASS][pass] |
+| Runtime security restrictions         | ![PASS][pass] |
+| Dynamic host port discovery           | ![PASS][pass] |
+| Spring Boot health endpoint           | ![PASS][pass] |
+| REST API smoke response               | ![PASS][pass] |
+
+**Limitations:** HTTP smoke checks do not replace full integration<br/>
+tests or security testing. The new smoke-test step has not yet<br/>
+passed on a GitHub Actions runner. Negative security tests remain a<br/>
+separate task.
 
 ### 3. Future Journal Entries
 
-For each development phase, record:
+Each subsequent phase will record its objective, implementation,<br/>
+engineering decisions, observed results, evidence, and limitations.
 
-- Objective and context.
-- Design decisions and alternatives.
-- Actual implementation and problems encountered.
-- Fixes, validation results and evidence links.
-- Remaining limitations and lessons learned.
-
-Do not record planned activities as completed.
+Do not record planned activities as completed work.
 
 ### 4. Task 4 Preparation
 
-The final report will critically evaluate tool selection, architecture,<br/>
-implementation challenges, the benefits and drawbacks of CI/CD, and the<br/>
-application of collaboration, automation, measurement and sharing.
+The reflective report will evaluate tool selection, architecture,<br/>
+engineering trade-offs, the effects of automation, testing and<br/>
+security, and the benefits and limits of collaboration and<br/>
+reproducible delivery.
 
-It will also compare alternative approaches and justify improvements<br/>
-using actual evidence from the completed project.
+The report will compare alternatives and justify future improvements<br/>
+using evidence from validated project work.
+
+[pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
+
+[github-dependabot]: https://github.blog/engineering/platform-security/
+
+[reddit-dependencies]: https://www.reddit.com/r/RedditEng/

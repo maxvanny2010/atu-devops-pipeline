@@ -2,57 +2,71 @@
 
 **Atlantic Technological University (ATU)**
 
-**Program:** Postgraduate Diploma in Computing in DevOps<br/>
+**Programme:** Postgraduate Diploma in Computing in DevOps<br/>
 **Module:** DevOps Software Engineering<br/>
 **Lecturer:** Maria Griffin<br/>
 **Student:** Maksym Voronianskyi<br/>
 **Student Number:** L00213593<br/>
 **Academic Year:** 2026/2027
 
-**Technologies:** Java 21, Spring Boot, Maven, GitHub Actions, SonarQube, Trivy,<br/>
-Docker, Kubernetes, Terraform, Playwright, Prometheus, Grafana, Slack
+**Technologies:** Java 21, Spring Boot, Spring Data JPA, H2, Maven,<br/>
+JUnit, Mockito, Spring Boot Test, JaCoCo, HTML, CSS, JavaScript,<br/>
+Playwright, Git, GitHub, GitHub Actions, SonarQube, Trivy,<br/>
+Dependabot, Docker, Docker Compose, GitHub Container Registry<br/>
+(GHCR), Kubernetes, Kustomize, Terraform, Spring Boot Actuator,<br/>
+Micrometer, Prometheus, Grafana, Slack, SBOM, Software Provenance,<br/>
+Image Signing, Conventional Commits, Semantic Versioning
 
 ---
 
 ### Overview
 
-This project develops an automated DevSecOps CI/CD pipeline for a small Spring<br/>
-Boot Task Manager web application.
+This project develops an automated DevSecOps CI/CD pipeline for a<br/>
+small Spring Boot Task Manager web application.
 
-The application is intentionally limited in scope so that the project can focus on<br/>
-reproducible builds, automated testing, secure software delivery, container<br/>
-orchestration, monitoring, and recovery procedures.
+The application is intentionally limited in scope so that the<br/>
+project can focus on reproducible builds, automated testing, secure<br/>
+software delivery, container orchestration, monitoring, and recovery<br/>
+procedures.
 
-**Assignment:** Task 3 - DevOps in Action: Creating a mini-pipeline (60%).<br/>
+**Assignment:** Task 3 - DevOps in Action: Creating a mini-pipeline<br/>
+(60%).<br/>
 **Related assignment:** Task 4 - DevOps in Action: Reflection (10%).
 
 #### Project Status
 
-**Current phase:** Backend, Java CI, JaCoCo, Docker build and Trivy scanning verified.<br/>
-Local SonarQube analysis passed; frontend, deployment and monitoring are planned.
+The REST API, automated Maven tests, JaCoCo coverage gate, Java CI,<br/>
+SonarQube analysis, Docker build, and Trivy scanning have been<br/>
+verified. Docker runtime smoke testing has passed locally. Its<br/>
+GitHub Actions execution has not yet been verified.
 
-#### Technologies
+#### Technology Stack
 
-| Area                         | Selected Technologies                 |
-|------------------------------|---------------------------------------|
-| Application                  | Java 21, Spring Boot, Maven           |
-| Frontend                     | HTML, CSS, JavaScript                 |
-| Unit and integration testing | JUnit, Mockito, Spring Boot Test      |
-| Frontend and E2E testing     | Playwright                            |
-| Test coverage                | JaCoCo                                |
-| CI/CD                        | GitHub Actions                        |
-| Code quality                 | SonarQube                             |
-| Security scanning            | Trivy, secret scanning                |
-| Containerisation             | Docker                                |
-| Orchestration                | Kubernetes                            |
-| Infrastructure as Code       | Terraform                             |
-| Observability                | Prometheus, Grafana, application logs |
-| Notifications                | Slack                                 |
+| Area                     | Technologies                              |
+|--------------------------|-------------------------------------------|
+| Backend                  | Java 21, Spring Boot, Spring Data JPA, H2 |
+| Frontend                 | HTML, CSS, JavaScript                     |
+| Build and dependencies   | Maven, Dependabot                         |
+| Unit and API testing     | JUnit, Mockito, Spring Boot Test          |
+| Coverage                 | JaCoCo                                    |
+| Browser testing          | Playwright                                |
+| Source control and CI/CD | Git, GitHub, GitHub Actions               |
+| Code quality             | SonarQube                                 |
+| Container security       | Docker, Docker Compose, Trivy             |
+| Image distribution       | GHCR, SBOM, provenance, image signing     |
+| Orchestration and IaC    | Kubernetes, Kustomize, Terraform          |
+| Observability            | Actuator, Micrometer, Prometheus, Grafana |
+| Notifications            | Slack                                     |
+| Release management       | Conventional Commits, Semantic Versioning |
+
+The technology list describes the overall project scope. Individual<br/>
+implementation and validation states are recorded in the sections<br/>
+below.
 
 #### Application Scope
 
-The REST API is implemented using Spring Boot 4.1.2, Spring Data JPA and H2.<br/>
-The browser-based interface remains planned.
+The REST API uses Spring Boot 4.1.2, Spring Data JPA, and H2. The<br/>
+browser-based interface is not yet implemented.
 
 | Method | Endpoint          | Description        |
 |--------|-------------------|--------------------|
@@ -62,223 +76,233 @@ The browser-based interface remains planned.
 | PATCH  | `/api/tasks/{id}` | Update task status |
 | DELETE | `/api/tasks/{id}` | Delete a task      |
 
-Requests use Bean Validation; invalid data and missing tasks receive HTTP 400/404.<br/>
-The API uses controller, service and repository layers.
+Bean Validation checks requests. Invalid data and missing tasks<br/>
+receive HTTP 400 and 404 responses where applicable. The backend<br/>
+uses controller, service, and repository layers.
 
 #### Pipeline Architecture
 
-The planned CI/CD process separates Pull Request validation from trusted<br/>
-deployment operations.
+The delivery design separates Pull Request validation from trusted<br/>
+release and deployment operations.
 
-1. Create a feature branch and open a GitHub Pull Request.
-2. Run automated build, unit tests, integration tests, and frontend tests.
-3. Apply code quality and security checks before merging.
-4. Build and scan a multi-stage Docker image.
-5. Publish the verified image with an immutable identifier.
-6. Deploy to a local Kubernetes environment through a controlled workflow.
-7. Verify application health, observe metrics, and test rollback procedures.
-8. Capture logs, alerts, pipeline results, and evidence for the assignment.
+1. Develop on a feature branch and open a Pull Request.
+2. Execute builds, unit tests, integration tests, and browser tests.
+3. Enforce coverage, code quality, and security gates.
+4. Build and runtime-test a hardened Docker image.
+5. Scan the image and establish traceable release artifacts.
+6. Publish the verified image to GHCR by immutable digest.
+7. Deploy to Kubernetes through a controlled workflow.
+8. Verify health, metrics, alerts, and rollback procedures.
 
 #### Git Workflow
 
 - `master` is the integration branch.
 - Feature branches isolate implementation changes.
-- Pull Requests document changes, tests, and review outcomes.
-- Each commit is identified by its Git SHA; pushes and PRs do not create versions.
-- Release tags will identify validated application versions after CI is configured.
+- Pull Requests document changes and verification results.
+- Commits are identified by Git SHA; pushes and PRs do not create
+  versions.
+- Release tags identify validated application versions.
 
 #### Testing Strategy
 
-| Test Level     | Purpose                                      | Status  |
-|----------------|----------------------------------------------|---------|
-| Unit           | Validate isolated application logic          | Passed  |
-| Integration    | Validate application components together     | Passed  |
-| API            | Validate REST endpoint behaviour             | Passed  |
-| Frontend / E2E | Validate browser-based user workflows        | Planned |
-| Security       | Detect vulnerable dependencies and images    | Planned |
-| Deployment     | Validate rollout, health checks and rollback | Planned |
+| Test level     | Purpose                           | Result        |
+|----------------|-----------------------------------|---------------|
+| Unit           | Validate service logic            | ![PASS][pass] |
+| Integration    | Validate application components   | ![PASS][pass] |
+| REST API       | Validate backend HTTP behaviour   | ![PASS][pass] |
+| JaCoCo gate    | Enforce minimum 80% coverage      | ![PASS][pass] |
+| Docker runtime | Validate hardened runtime locally | ![PASS][pass] |
+| Frontend E2E   | Validate browser workflows        | Not verified  |
+| Kubernetes     | Validate rollout and rollback     | Not verified  |
 
-**Local validation (17 November 2026):** `mvn clean test` — BUILD SUCCESS.<br/>
-9 tests passed: 4 service unit, 4 API integration and 1 context-load test.<br/>
-JaCoCo 80% gate and GitHub Actions CI run `44083764858` passed.
-
-Verified evidence is shown below and stored under `evidence/`.
+**Local backend validation (17 November 2026):** Nine tests passed:<br/>
+four service unit tests, four MVC API integration tests, and one<br/>
+application context test. Maven verification and the JaCoCo gate<br/>
+passed.
 
 #### JaCoCo Code Coverage
 
-JaCoCo 0.8.16 measures Java test coverage during Maven verification.
+JaCoCo 0.8.16 measures coverage during Maven verification.
 
-- Automated tests: 9 passed, 0 failures.
-- Instruction coverage: **88%**.
-- Quality Gate: minimum **80%**, passed.
-- HTML report: `target/site/jacoco/index.html`.
+| Validation                    | Result        |
+|-------------------------------|---------------|
+| Nine automated tests          | ![PASS][pass] |
+| Instruction coverage: 88%     | ![PASS][pass] |
+| Minimum instruction gate: 80% | ![PASS][pass] |
+
+HTML report: `target/site/jacoco/index.html`.
 
 ![JaCoCo coverage report](evidence/jococo.png)
 
 #### GitHub Actions CI
 
-The CI workflow is defined in `.github/workflows/ci.yml`.<br/>
-It runs Java 21, Maven verification, and the JaCoCo 80% coverage gate.
+The Java workflow is defined in `.github/workflows/ci.yml`. It uses<br/>
+Java 21, Maven verification, and the JaCoCo 80% coverage gate.
 
-- Triggers: PRs to `master`, pushes to `master` and `feature/**`, manual runs.
-- Test and coverage reports are uploaded as workflow artifacts.
-- Local workflow validation: **actionlint PASS**.
-- GitHub Actions run `44083764858`: **passed**; reports uploaded as artifacts.
+| Validation                               | Result        |
+|------------------------------------------|---------------|
+| Local actionlint validation              | ![PASS][pass] |
+| GitHub Actions run `44083764858`         | ![PASS][pass] |
+| Test and coverage report artifact upload | ![PASS][pass] |
 
-**Reference:** [GitHub Actions](https://docs.github.com/en/actions)
-
-#### Security and Supply Chain Controls
-
-The planned controls include:
-
-- Read-only default permissions for GitHub Actions jobs.
-- Separation of untrusted Pull Request checks from deployment credentials.
-- Static analysis and vulnerability scanning with enforced quality gates.
-- Minimal Docker runtime privileges and multi-stage builds.
-- Software Bill of Materials (SBOM) generation.
-- Immutable container image digests and provenance where supported.
-- Protected deployment configuration and restricted secret access.
-
-**Dependency remediation verified locally:** H2 `2.4.240` → `2.5.252`;<br/>
-json-smart `2.6.0` → `2.6.1`; ASM `9.7.1` → `9.11.1` (test scope).<br/>
-Jackson Databind `3.1.7` was retained. Maven dependency resolution and tests passed.<br/>
-Docker image scanning and the Trivy HIGH/CRITICAL security gate passed; negative security tests remain planned.
+The workflow handles PRs and branch pushes and uploads test<br/>
+artifacts.
 
 #### SonarQube Static Analysis
 
-SonarQube identified a reliability issue (`java:S9427`) in an
-integration test. The Java `assert` was replaced with JUnit's
-`assertNotNull()`. A subsequent analysis confirmed the issue was resolved.
+SonarQube identified a reliability issue (`java:S9427`) in an API<br/>
+test. A Java `assert` was replaced with JUnit `assertNotNull()`.<br/>
+Re-analysis confirmed the issue was resolved.
 
-**Before - Reliability D, 1 Open Issue**
+**Before: Reliability D, 1 open issue**
 
 ![SonarQube before](evidence/sonarqube-dashboard-issue.png)
 
-**After - Reliability A, 0 Open Issues**
+**After: Reliability A, 0 open issues**
 
 ![SonarQube after](evidence/sonarqube-dashboard-successes.png)
 
-The Quality Gate passed with 90.2% coverage and 0.0% duplications.
+| Validation                   | Result        |
+|------------------------------|---------------|
+| SonarQube Quality Gate       | ![PASS][pass] |
+| Coverage: 90.2%              | ![PASS][pass] |
+| Duplications: 0.0%           | ![PASS][pass] |
+| Reliability A, 0 open issues | ![PASS][pass] |
 
-#### Trivy Container Security Scan
+#### Dependency and Workflow Security
 
-Trivy 0.76.2 scanned the Docker image and its Java dependencies.<br/>
-No HIGH or CRITICAL vulnerabilities were detected.
+Resolved dependency updates were verified locally: H2 `2.5.252`,<br/>
+json-smart `2.6.1`, and ASM `9.11.1` in test scope. Jackson Databind<br/>
+`3.1.7` was retained.
 
-![Trivy image scan results](evidence/trivy-image-scan.png)
+Workflow security and maintenance controls include:
+
+- Explicit minimal job permissions (`contents: read`).
+- Full commit SHA pinning for GitHub Actions dependencies.
+- Concurrency groups to cancel superseded CI runs.
+- Dependabot configuration for Maven, Docker, and GitHub Actions.
+- Weekly dependency update checks and reviewable update requests.
+
+Dependabot configuration is committed on the feature branch.<br/>
+Creation of update Pull Requests has not yet been verified.
 
 #### Docker Containerisation and Security Scanning
 
-The Task Manager is packaged using a three-stage Docker build:
+A three-stage Dockerfile packages the Task Manager application:
 
-1. **Build:** Maven and Java 21 compile the application, run 9 automated
-   tests and enforce the JaCoCo 80% coverage threshold.
-2. **Extract:** Spring Boot `jarmode=tools` extracts the layered JAR into
-   dependencies, Spring Boot loader, snapshot dependencies and application.
-3. **Runtime:** Java 21 JRE runs the extracted application without Maven,
-   the JDK or source files in the final image.
+1. **Build:** Maven and Java 21 compile and verify the application.
+2. **Extract:** Spring Boot extracts the layered executable JAR.
+3. **Runtime:** Java 21 JRE runs without Maven, JDK, or project sources.
 
-Separating application code from dependencies improves Docker layer caching.
+Separating application code and dependencies improves image layer<br/>
+caching.
 
-**Runtime security controls:**
+**Runtime security contract:**
 
-- Non-root user: `10001:10001`.
-- Read-only container filesystem.
+- Non-root application user and group: `10001:10001`.
+- Read-only root filesystem.
 - All Linux capabilities dropped.
-- `no-new-privileges` enabled.
-- Writable `tmpfs` restricted to `/app/tmp`.
-- Port 8080 bound to `127.0.0.1` for local testing.
+- Privilege escalation disabled with `no-new-privileges`.
+- Writable `/app/tmp` with `rw,nosuid,noexec` tmpfs restrictions.
+- Localhost-only published host port during smoke testing.
 
-**Local validation:**
+#### Trivy Container Security Scan
 
-- [x] Three-stage Docker image built successfully.
-- [x] Spring Boot Layered JAR extracted successfully.
-- [x] Application health endpoint returned `UP`.
-- [x] REST API `GET /api/tasks` passed.
-- [x] Container security configuration verified.
-- [x] Trivy 0.76.2 image scan completed.
-- [x] No HIGH or CRITICAL vulnerabilities detected.
-- [x] Local Trivy Security Gate passed with exit code 0.
+Trivy 0.76.2 scanned the image and Java dependencies. No HIGH or<br/>
+CRITICAL vulnerabilities were detected in the verified scan. The<br/>
+security gate returned exit code 0.
 
-The GitHub Actions Docker security workflow builds the container image and
-uses Trivy with `exit-code: 1` for HIGH and CRITICAL vulnerabilities.<br/>
-GitHub Actions Docker build and Trivy scan run 44162103286 passed. CI runtime smoke tests remain planned.
+![Trivy image scan results](evidence/trivy-image-scan.png)
+
+| Validation                           | Result        |
+|--------------------------------------|---------------|
+| Local image build and layered JAR    | ![PASS][pass] |
+| Local Trivy scan                     | ![PASS][pass] |
+| No HIGH or CRITICAL findings         | ![PASS][pass] |
+| Trivy security gate (`exit-code: 1`) | ![PASS][pass] |
+| GitHub Actions run `44162103286`     | ![PASS][pass] |
+
+The cited GitHub Actions run verifies Docker build and Trivy<br/>
+scanning, not the newer runtime smoke-test step.
+
+#### Docker Runtime Smoke Tests
+
+The Docker security workflow calls `scripts/docker/smoke-test.sh`<br/>
+against the image built earlier in the same job. Test logic remains<br/>
+in a reusable Bash script rather than embedded inside the GitHub<br/>
+Actions YAML.
+
+The script verifies the image user and Docker runtime configuration,<br/>
+starts the application on a dynamically allocated localhost port,<br/>
+checks the HTTP endpoints, and removes the test container on exit.
+
+| Local validation (18 November 2026) | Result        |
+|-------------------------------------|---------------|
+| Bash syntax                         | ![PASS][pass] |
+| Docker image build                  | ![PASS][pass] |
+| Non-root image user                 | ![PASS][pass] |
+| Runtime security restrictions       | ![PASS][pass] |
+| Dynamic host port discovery         | ![PASS][pass] |
+| Spring Boot `/actuator/health`      | ![PASS][pass] |
+| REST API `GET /api/tasks`           | ![PASS][pass] |
+
+The security checks use `docker inspect`. On failure, the script<br/>
+prints container logs and removes the temporary container.
+
+The API check is a smoke test, not full JSON schema validation. The<br/>
+new workflow step has not yet been verified in GitHub Actions.
 
 #### Monitoring and Logging
 
-The observability stack is planned to include:
-
-- Spring Boot Actuator and Micrometer metrics.
-- Prometheus metrics collection.
-- Grafana dashboards for application health.
-- Structured application logs.
-- Alerting and Slack notifications.
+The delivery architecture includes Spring Boot Actuator and<br/>
+Micrometer, Prometheus metrics collection, Grafana dashboards,<br/>
+structured logs, alerts, and Slack notifications. Their end-to-end<br/>
+deployment and verification have not yet been completed.
 
 #### Assignment Requirements and Evidence
 
-| Assessment Criterion               | Marks | Evidence Location                 |
-|------------------------------------|------:|-----------------------------------|
-| Source Code Management             |    10 | Git history and Pull Requests     |
-| Automated Builds and Testing       |    20 | CI results and test reports       |
-| Static Analysis and Security       |    15 | Quality and vulnerability reports |
-| Containerisation and Orchestration |    20 | Docker and Kubernetes evidence    |
-| Deployment                         |    20 | CD runs and deployment checks     |
-| Monitoring and Logging             |    15 | Dashboards, alerts, and logs      |
+| Assessment criterion               | Marks | Evidence                       |
+|------------------------------------|------:|--------------------------------|
+| Source Code Management             |    10 | Git history and Pull Requests  |
+| Automated Builds and Testing       |    20 | CI results and test reports    |
+| Static Analysis and Security       |    15 | Quality and scan reports       |
+| Containerisation and Orchestration |    20 | Docker and Kubernetes evidence |
+| Deployment                         |    20 | CD runs and deployment checks  |
+| Monitoring and Logging             |    15 | Dashboards, alerts, and logs   |
 
-Evidence links and verified outcomes will be added as the project progresses. No<br/>
-test or deployment result is claimed before successful validation.
+Only observed results are described as verified.
 
 #### Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Reflection Notes](docs/REFLECTION_NOTES.md)
 
-Pipeline test results, security evidence, and deployment outcomes will be<br/>
-documented in this README and linked to files in `evidence/`.
-
 #### References
 
-Official technical and academic sources will be added when the related<br/>
-implementation decisions and controls are documented and validated.
+- [GitHub Actions](https://docs.github.com/en/actions)
+- [JaCoCo Maven
+  Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
+- [GitHub Engineering: Dependabot][github-dependabot]
+- [Reddit Engineering: Dependency management][reddit-dependencies]
+- [GitHub Dependabot Documentation][dependabot-docs]
 
-- [JaCoCo Maven Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
+Reddit Engineering describes previous Dependabot usage and migration<br/>
+to Renovate; it is not evidence of current Reddit production use of<br/>
+Dependabot.
 
 #### Development Status and Limitations
 
-The REST API and nine automated tests have passed local validation.<br/>
-JaCoCo, GitHub Actions CI and local SonarQube analysis have been verified.<br/>
-Docker image build and Trivy scanning passed locally and in GitHub Actions.<br/>
-Frontend, Kubernetes deployment, monitoring and negative security tests remain planned.
+Backend, Java CI, code coverage, SonarQube analysis, Docker build,<br/>
+Trivy scanning, and local Docker runtime smoke testing have been<br/>
+verified. GitHub Actions verification of the new smoke-test step<br/>
+remains outstanding. Frontend, Kubernetes, release automation,<br/>
+supply-chain attestations, observability, and negative security<br/>
+scenarios require further validation.
 
-#### CI Hardening and Dependency Management
+[pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
 
-**Engineering rationale:**
+[github-dependabot]: https://github.blog/engineering/platform-security/
 
-Dependabot was introduced after Docker containerization and Trivy
-scanning to support controlled maintenance of Docker base images,
-Maven dependencies and SHA-pinned GitHub Actions.
+[reddit-dependencies]: https://www.reddit.com/r/RedditEng/
 
-It proposes dependency updates through reviewable pull requests.
-This reduces manual maintenance while preserving CI reproducibility.
-Dependabot update PR generation has not yet been verified.
-
-**Industry references:**
-
-- [GitHub Engineering - Dependabot](https://github.blog/engineering/platform-security/how-we-use-dependabot-to-secure-github/)
-- [Reddit Engineering - Dependency management](https://www.reddit.com/r/RedditEng/comments/1s1q879/dependency_hell_aka_how_i_learned_to_stop/)
-- [GitHub Dependabot documentation](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-version-updates)
-
-The GitHub Actions workflows apply the following security and reliability controls:
-
-- Explicit read-only repository permissions (`contents: read`).
-- Full commit SHA pinning for third-party and official GitHub Actions.
-- Workflow concurrency groups to cancel outdated CI runs on the same branch.
-- Dependabot configuration for GitHub Actions, Maven and Docker dependencies.
-- Weekly Dependabot update checks configured; update PR generation not yet verified.
-- Dependency updates are reviewed and validated through CI before merging.
-
-These controls reduce unnecessary workflow privileges, improve dependency
-traceability and prevent superseded CI runs from consuming resources.
-
-Docker base image digest pinning and release artifact provenance are handled
-as separate supply-chain hardening activities.
+[dependabot-docs]: https://docs.github.com/en/code-security
