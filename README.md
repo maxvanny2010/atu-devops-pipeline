@@ -252,6 +252,12 @@ prints container logs and removes the temporary container.
 The API check is a smoke test, not full JSON schema validation. The<br/>
 new workflow step has not yet been verified in GitHub Actions.
 
+#### Docker Runtime Smoke Test Evidence
+
+![Docker CI workflows](evidence/docker-ci-workflows.png)
+
+![Docker runtime smoke test](evidence/docker-runtime-smoke-test.png)
+
 #### Monitoring and Logging
 
 The delivery architecture includes Spring Boot Actuator and<br/>
