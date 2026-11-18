@@ -44,7 +44,76 @@ applicable.
 
 Four service unit tests, four MVC API integration tests, and one<br/>
 context load test passed on Java 21 and Spring Boot 4.1.2. The<br/>
-browser-based frontend is not yet implemented.
+frontend is implemented with HTML, CSS, and JavaScript and served<br/>
+from Spring Boot's static resource directory.
+
+### Browser Interface and API Flow
+
+The static frontend loads at `/` from `static/index.html`. Its<br/>
+JavaScript uses relative `/api/tasks` URLs, so the page and API share<br/>
+the Spring Boot origin. The browser does not need CORS or a separate<br/>
+frontend build process.
+
+```text
+Browser (HTML, CSS, JavaScript)
+       |
+       | HTTP: GET, POST, PATCH, DELETE /api/tasks
+       v
+Spring Boot TaskController
+       |
+       v
+TaskService -> Spring Data JPA -> H2
+```
+
+The form submits a task title. Each list item includes a completion<br/>
+checkbox and a delete action. After a successful mutation, the browser<br/>
+reloads the list from the API. User-entered titles are inserted as<br/>
+text rather than HTML.
+
+### Playwright E2E Test Architecture
+
+`e2e/task-manager.spec.js` uses Chromium against the real Spring Boot<br/>
+application on `http://127.0.0.1:8081`. The tests verify page loading,<br/>
+creating a task, changing its completed state, and deleting a task.<br/>
+Tests that create data use API requests to clean it up.
+
+```text
+Playwright (Chromium)
+       |
+       v
+Task Manager page -> Spring Boot REST API -> H2
+       |
+       +--> Browser assertions
+       +--> API state assertions
+```
+
+| Local check (18 November 2026) | Result        |
+|--------------------------------|---------------|
+| Four Chromium E2E tests        | ![PASS][pass] |
+| JavaScript syntax              | ![PASS][pass] |
+| Playwright test discovery      | ![PASS][pass] |
+| `actionlint` on Playwright CI  | ![PASS][pass] |
+
+**Result:** 4/4 browser tests passed in 8.4 seconds. The workflow is<br/>
+configured but has not yet passed a GitHub Actions run.
+
+### Playwright CI Workflow
+
+`.github/workflows/playwright.yml` is separate from Java CI and Docker<br/>
+CI. It runs on feature-branch pushes, PRs targeting `master`, and<br/>
+manual dispatch. The Ubuntu job:
+
+1. Checks out the repository with read-only permissions.
+2. Configures Java 21 and Node.js 22.
+3. Runs `npm ci` and installs Chromium with system dependencies.
+4. Builds the Spring Boot JAR with Maven.
+5. Starts the application on port 8081.
+6. Polls `/actuator/health` until it responds or times out.
+7. Runs four Playwright tests and uploads reports and the server log.
+
+The Maven build remains part of this job because the browser needs a<br/>
+running backend. The separate Java CI job still enforces its own<br/>
+coverage gate. GitHub execution of the Playwright job is pending.
 
 ## Code Coverage and Quality Gates
 
@@ -86,12 +155,16 @@ separate trust contexts.
                       PASS        FAIL
                        |            |
                        v            v
-                  Merge eligible   Block
+                  Merge eligible   Failed check
 ```
+
+A failing check is visible to reviewers. Blocking merge requires<br/>
+a branch protection rule or ruleset that requires the check.
 
 ### Implemented Workflows
 
 - Java CI builds, tests, and enforces the JaCoCo threshold.
+- Playwright CI builds the app and runs Chromium browser tests.
 - Docker CI builds the image and executes Trivy vulnerability
   scanning.
 - A local Docker runtime smoke test verifies effective security
@@ -102,7 +175,8 @@ separate trust contexts.
 - GitHub Actions dependencies use full commit SHA references.
 - CI concurrency cancels superseded branch runs.
 
-The Docker runtime smoke-test step passed in GitHub Actions.
+The Docker runtime smoke-test step passed in GitHub Actions.<br/>
+Playwright CI passed local YAML linting; its GitHub run is pending.
 
 ## Docker Build Architecture
 

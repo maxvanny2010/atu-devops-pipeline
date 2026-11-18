@@ -36,9 +36,11 @@ procedures.
 #### Project Status
 
 The REST API, Maven tests, JaCoCo gate, Java CI, SonarQube, and Docker<br/>
-build have passed verification. Runtime smoke tests also passed in<br/>
-GitHub Actions. Dependabot created update PRs, and the separate<br/>
-negative-test workflow passed all three checks on 18 November 2026.
+build have passed verification. Docker smoke and manual negative tests<br/>
+also passed in GitHub Actions. Dependabot opened four update PRs.<br/>
+The Task Manager frontend and four Playwright E2E tests passed locally<br/>
+on 18 November 2026. Playwright CI is configured but not yet verified<br/>
+in GitHub Actions.
 
 #### Technology Stack
 
@@ -65,8 +67,10 @@ below.
 
 #### Application Scope
 
-The REST API uses Spring Boot 4.1.2, Spring Data JPA, and H2. The<br/>
-browser-based interface is not yet implemented.
+The REST API uses Spring Boot 4.1.2, Spring Data JPA, and H2. A small<br/>
+HTML, CSS, and JavaScript frontend is served by Spring Boot from<br/>
+`src/main/resources/static/`. It uses the existing REST API without a<br/>
+separate frontend service.
 
 | Method | Endpoint          | Description        |
 |--------|-------------------|--------------------|
@@ -105,20 +109,66 @@ release and deployment operations.
 
 #### Testing Strategy
 
-| Test level     | Purpose                           | Result        |
-|----------------|-----------------------------------|---------------|
-| Unit           | Validate service logic            | ![PASS][pass] |
-| Integration    | Validate application components   | ![PASS][pass] |
-| REST API       | Validate backend HTTP behaviour   | ![PASS][pass] |
-| JaCoCo gate    | Enforce minimum 80% coverage      | ![PASS][pass] |
-| Docker runtime | Validate hardened runtime locally | ![PASS][pass] |
-| Frontend E2E   | Validate browser workflows        | Not verified  |
-| Kubernetes     | Validate rollout and rollback     | Not verified  |
+| Test level     | Purpose                           | Result         |
+|----------------|-----------------------------------|----------------|
+| Unit           | Validate service logic            | ![PASS][pass]  |
+| Integration    | Validate application components   | ![PASS][pass]  |
+| REST API       | Validate backend HTTP behaviour   | ![PASS][pass]  |
+| JaCoCo gate    | Enforce minimum 80% coverage      | ![PASS][pass]  |
+| Docker runtime | Validate hardened runtime locally | ![PASS][pass]  |
+| Frontend E2E   | Validate browser workflows        | Local 4/4 PASS |
+| Kubernetes     | Validate rollout and rollback     | Not verified   |
 
 **Local backend validation (17 November 2026):** Nine tests passed:<br/>
 four service unit tests, four MVC API integration tests, and one<br/>
 application context test. Maven verification and the JaCoCo gate<br/>
 passed.
+
+#### Task Manager Frontend and Playwright E2E
+
+The frontend provides a task form, task list, completion checkboxes,<br/>
+delete buttons, refresh, counters, and error messages. It calls the<br/>
+Spring Boot API using `fetch` on the same origin. The browser UI does<br/>
+not require React, a separate server, or CORS configuration.
+
+| File                                   | Purpose                       |
+|----------------------------------------|-------------------------------|
+| `src/main/resources/static/index.html` | Page structure and form       |
+| `src/main/resources/static/styles.css` | Responsive layout and styling |
+| `src/main/resources/static/app.js`     | REST requests and UI updates  |
+| `e2e/task-manager.spec.js`             | Four Chromium E2E tests       |
+| `playwright.config.js`                 | Test configuration, port 8081 |
+| `package.json`, `package-lock.json`    | Test scripts and dependencies |
+
+Run the backend locally and execute the browser tests in another<br/>
+terminal:
+
+```powershell
+mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"
+npm ci
+npx playwright install chromium
+npm run test:e2e
+```
+
+Open the UI at `http://localhost:8081/` while Spring Boot is running.<br/>
+The E2E tests use a real browser and API requests to create and clean<br/>
+up test data. No external application server is required.
+
+| Playwright test (18 November 2026) | Local result  |
+|------------------------------------|---------------|
+| Load Task Manager                  | ![PASS][pass] |
+| Create a task                      | ![PASS][pass] |
+| Mark a task as completed           | ![PASS][pass] |
+| Delete a task                      | ![PASS][pass] |
+
+**Local result:** 4/4 passed in Chromium in 8.4 seconds. JavaScript<br/>
+syntax checks, test discovery, and `actionlint` validation of the new<br/>
+workflow also passed. These do not establish a GitHub Actions PASS.
+
+The separate `.github/workflows/playwright.yml` builds Spring Boot,<br/>
+starts it on port 8081, waits for `/actuator/health`, installs Chromium,<br/>
+runs the E2E tests, and uploads reports and the application log.<br/>
+**CI status:** Implemented; awaiting the first GitHub Actions run.
 
 #### JaCoCo Code Coverage
 
@@ -340,13 +390,38 @@ Reddit Engineering describes previous Dependabot usage and migration<br/>
 to Renovate; it is not evidence of current Reddit production use of<br/>
 Dependabot.
 
+#### Playwright CI Failure and Fix Evidence
+
+The first Playwright GitHub Actions run passed three of four tests.
+The completion test failed because it checked the API state before
+waiting for the asynchronous HTTP PATCH response.
+
+The test was updated to wait for the matching PATCH response
+before verifying the persisted task status.
+
+| Verification               | Result              |
+|----------------------------|---------------------|
+| Initial GitHub Actions run | FAIL: 3/4           |
+| Repeated completion test   | PASS: 10/10 locally |
+| Full E2E suite after fix   | PASS: 4/4 locally   |
+| GitHub Actions after fix | PASS: 4/4 E2E |
+
+![First CI failure](evidence/playwright-ci-race-failure_1.png)
+
+![CI failure details](evidence/playwright-ci-race-failure_2.png)
+
+![Repeated completion test](evidence/playwright-race-fix-repeat.png)
+
+![Successful Playwright CI](evidence/playwright-ci-success.png)
+
 #### Development Status and Limitations
 
 Backend tests, quality checks, Docker build, positive smoke tests,<br/>
 Trivy scanning, and manual negative tests are verified in GitHub<br/>
-Actions. Dependabot PR creation is also verified. Frontend E2E,<br/>
-Kubernetes, release automation, supply-chain attestations, and<br/>
-observability are not yet verified.
+Actions. Dependabot PR creation is verified. Frontend E2E tests passed<br/>
+locally (4/4), but the new Playwright workflow has not yet been run<br/>
+in GitHub Actions. Kubernetes, release automation, supply-chain<br/>
+attestations, and observability remain unverified.
 
 [pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
 

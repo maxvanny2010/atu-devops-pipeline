@@ -1,0 +1,12 @@
+{
+  "name": "atu-devops-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ATU DevSecOps Task Manager",
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  }
+}
