@@ -521,6 +521,41 @@ Keeping the scripts separate made those checks easier. A release could
 still partly succeed if the image is pushed but GitHub Release creation
 fails, so that case needs care during the first real release.
 
+#### Entry 014 - Automated Release Script Tests
+
+**Date:** 19 November 2026
+
+**Objective:** Run release-script checks automatically in GitHub Actions
+before attempting the first tagged release.
+
+I added a dedicated `release-tests.yml` workflow to execute Bash syntax
+checks and the existing offline test suite on an Ubuntu runner. The
+tests use mock GitHub and Docker commands; they verify both accepted
+inputs and expected failures without pushing an image or creating a
+release.
+
+The first local run failed because some Bash scripts had Windows CRLF
+line endings. I converted the release scripts to LF and added a
+`.gitattributes` rule to keep that format. The scripts remained Bash;
+only their line endings changed.
+
+**Verification:**
+
+- All 12 release Bash scripts passed syntax checks locally.
+- Offline positive and negative release checks passed locally.
+- `actionlint` reported no errors for `release-tests.yml`.
+- **Release Script Validation** passed in GitHub Actions on Ubuntu.
+- A separate Docker Security run failed during Maven dependency
+  resolution, but passed when rerun. Its original cause was not proven.
+
+**Evidence:** `evidence/release-script-tests-github-actions-pass.png`
+
+**Reflection:** A local PASS did not independently demonstrate that
+the checks worked in CI. The GitHub Actions run gives reproducible
+evidence tied to a commit. Negative cases confirm that unsafe release
+inputs are rejected. This still does not verify actual GHCR publishing;
+that requires a separate tagged release test.
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation,<br/>

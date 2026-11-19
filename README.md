@@ -468,3 +468,26 @@ bash scripts/release/test-release-scripts.sh
 Also run `actionlint .github/workflows/release.yml` and syntax checks
 for all release scripts. The tests use mocked services; an actual
 GitHub Actions release remains unverified until a tagged run succeeds.
+
+### Automated Release Script Tests
+
+The separate `.github/workflows/release-tests.yml` runs Bash syntax
+checks and `scripts/release/test-release-scripts.sh` on Ubuntu 24.04
+for feature-branch pushes and pull requests to `master`. The tests
+use mocked GitHub API and Docker commands, so they do not publish
+images or create GitHub Releases.
+
+The test suite checks both valid inputs and expected failures,
+including invalid release tags, incorrect master SHAs, existing
+release targets, incorrect image metadata, and a modified archive.
+An expected script rejection counts as a passing negative test.
+
+**Verification (19 November 2026):** Local Bash syntax and offline
+tests passed, `actionlint` passed, and the **Release Script Validation**
+job passed in GitHub Actions. The Docker Security job initially failed
+while resolving a Maven parent POM; a rerun passed. The cause of the
+initial Maven failure was not confirmed.
+
+**GitHub Actions: Release Script Validation — PASS (19 November 2026).**
+
+![Release script tests passed in GitHub Actions](evidence/release-script-tests-github-actions-pass.png)
