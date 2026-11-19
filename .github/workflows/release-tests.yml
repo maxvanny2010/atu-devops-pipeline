@@ -1,0 +1,38 @@
+name: Release Script Tests
+
+on:
+  push:
+    branches:
+      - master
+      - "feature/**"
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-tests:
+    name: Release Script Validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Check Bash syntax
+        run: |
+          find scripts/release -type f -name '*.sh' -print0 |
+            xargs -0 -r -n 1 bash -n
+
+      - name: Run positive and negative release tests
+        run: bash scripts/release/test-release-scripts.sh
