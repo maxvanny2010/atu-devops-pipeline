@@ -38,9 +38,8 @@ procedures.
 The REST API, Maven tests, JaCoCo gate, Java CI, SonarQube, and Docker<br/>
 build have passed verification. Docker smoke and manual negative tests<br/>
 also passed in GitHub Actions. Dependabot opened four update PRs.<br/>
-The Task Manager frontend and four Playwright E2E tests passed locally<br/>
-on 18 November 2026. Playwright CI is configured but not yet verified<br/>
-in GitHub Actions.
+The Task Manager frontend and all four Playwright E2E tests passed<br/>
+locally and in GitHub Actions on 18 November 2026.
 
 #### Technology Stack
 
@@ -109,15 +108,15 @@ release and deployment operations.
 
 #### Testing Strategy
 
-| Test level     | Purpose                           | Result         |
-|----------------|-----------------------------------|----------------|
-| Unit           | Validate service logic            | ![PASS][pass]  |
-| Integration    | Validate application components   | ![PASS][pass]  |
-| REST API       | Validate backend HTTP behaviour   | ![PASS][pass]  |
-| JaCoCo gate    | Enforce minimum 80% coverage      | ![PASS][pass]  |
-| Docker runtime | Validate hardened runtime locally | ![PASS][pass]  |
-| Frontend E2E   | Validate browser workflows        | Local 4/4 PASS |
-| Kubernetes     | Validate rollout and rollback     | Not verified   |
+| Test level     | Purpose                           | Result                |
+|----------------|-----------------------------------|-----------------------|
+| Unit           | Validate service logic            | ![PASS][pass]         |
+| Integration    | Validate application components   | ![PASS][pass]         |
+| REST API       | Validate backend HTTP behaviour   | ![PASS][pass]         |
+| JaCoCo gate    | Enforce minimum 80% coverage      | ![PASS][pass]         |
+| Docker runtime | Validate hardened runtime locally | ![PASS][pass]         |
+| Frontend E2E   | Validate browser workflows        | Local and CI 4/4 PASS |
+| Kubernetes     | Validate rollout and rollback     | Not verified          |
 
 **Local backend validation (17 November 2026):** Nine tests passed:<br/>
 four service unit tests, four MVC API integration tests, and one<br/>
@@ -168,7 +167,7 @@ workflow also passed. These do not establish a GitHub Actions PASS.
 The separate `.github/workflows/playwright.yml` builds Spring Boot,<br/>
 starts it on port 8081, waits for `/actuator/health`, installs Chromium,<br/>
 runs the E2E tests, and uploads reports and the application log.<br/>
-**CI status:** Implemented; awaiting the first GitHub Actions run.
+**CI status:** PASS (4/4 tests after fixing a timing issue).
 
 #### JaCoCo Code Coverage
 
@@ -404,7 +403,7 @@ before verifying the persisted task status.
 | Initial GitHub Actions run | FAIL: 3/4           |
 | Repeated completion test   | PASS: 10/10 locally |
 | Full E2E suite after fix   | PASS: 4/4 locally   |
-| GitHub Actions after fix | PASS: 4/4 E2E |
+| GitHub Actions after fix   | PASS: 4/4 E2E       |
 
 ![First CI failure](evidence/playwright-ci-race-failure_1.png)
 
@@ -419,8 +418,7 @@ before verifying the persisted task status.
 Backend tests, quality checks, Docker build, positive smoke tests,<br/>
 Trivy scanning, and manual negative tests are verified in GitHub<br/>
 Actions. Dependabot PR creation is verified. Frontend E2E tests passed<br/>
-locally (4/4), but the new Playwright workflow has not yet been run<br/>
-in GitHub Actions. Kubernetes, release automation, supply-chain<br/>
+locally (4/4) and in GitHub Actions. Kubernetes, release automation, supply-chain<br/>
 attestations, and observability remain unverified.
 
 [pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
@@ -430,3 +428,43 @@ attestations, and observability remain unverified.
 [reddit-dependencies]: https://www.reddit.com/r/RedditEng/
 
 [dependabot-docs]: https://docs.github.com/en/code-security
+
+### Release automation scripts
+
+The release workflow controls the order of the Verify and Publish jobs.
+Longer Bash commands are stored in `scripts/release/` so they can be
+checked without running a release.
+They can be syntax-checked independently with `bash -n` and ShellCheck.
+
+The Verify job runs Maven/JaCoCo, Playwright, Docker smoke tests, and Trivy.
+After the security gate, it exports the tested Docker image as an artifact.
+The Publishing job checks the master SHA again, verifies the transferred
+archive checksum, loads that image without rebuilding, pushes GHCR version
+and commit SHA tags, and creates the GitHub Release with its image digest.
+
+A release is triggered by a stable SemVer tag such as `v0.1.0` pointing to
+the current `master` commit. No image is published from pull requests.
+This workflow has not been exercised by a real tag yet.
+
+### Release Security Hardening and Offline Checks
+
+The release pipeline uses a separate read-only Verify job and a privileged
+Publishing job. The candidate image name is configured once in `release.yml`.
+Verify runs Java, Playwright, Docker smoke tests and Trivy. Its image is
+saved with an image ID, and both files are covered by SHA-256 checksums.
+Publish checks the transferred image ID, full Git revision and source label.
+
+Before publication, the pipeline refuses an existing GitHub Release or
+GHCR version/SHA tag and checks the current master commit again.
+These preflight checks reduce accidental overwrites, but do not guarantee
+registry-level tag immutability against concurrent writers.
+
+Run the offline checks without cloud access:
+
+```bash
+bash scripts/release/test-release-scripts.sh
+```
+
+Also run `actionlint .github/workflows/release.yml` and syntax checks
+for all release scripts. The tests use mocked services; an actual
+GitHub Actions release remains unverified until a tagged run succeeds.

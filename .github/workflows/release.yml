@@ -1,0 +1,162 @@
+name: Release and GHCR
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions: { }
+
+env:
+  CANDIDATE_IMAGE: atu-task-manager:release-candidate
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify release candidate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    env:
+      APP_PORT: '8081'
+
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Validate release tag and master
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/release/validate-tag.sh
+
+      - name: Set up Java 21
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Verify Java tests and coverage
+        run: mvn --batch-mode --no-transfer-progress clean verify
+
+      - name: Install Playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Start application
+        run: bash scripts/release/start-application.sh
+
+      - name: Wait for application health
+        run: bash scripts/release/wait-for-health.sh
+
+      - name: Run browser tests
+        run: npm run test:e2e
+
+      - name: Build candidate Docker image
+        run: bash scripts/release/build-image.sh
+
+      - name: Docker runtime smoke tests
+        env:
+          IMAGE_NAME: ${{ env.CANDIDATE_IMAGE }}
+        run: bash scripts/docker/smoke-test.sh
+
+      - name: Trivy vulnerability gate
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.CANDIDATE_IMAGE }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          timeout: 20m
+          format: table
+          hide-progress: true
+
+      - name: Package the verified image
+        run: bash scripts/release/package-image.sh
+
+      - name: Upload verified image
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: verified-release-image
+          path: |
+            release-image.tar.gz
+            release-image.sha256
+            release-image-id.txt
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: release-verification
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/
+            playwright-report/
+            test-results/
+            spring-boot.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  publish:
+    name: Publish verified image and GitHub Release
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout release scripts
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Download verified Docker image
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: verified-release-image
+
+      - name: Verify transferred image and load into Docker
+        run: bash scripts/release/load-image.sh
+
+      - name: Authenticate to GitHub Container Registry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/release/login-ghcr.sh
+
+      - name: Check for existing release and GHCR tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/release/check-release-targets.sh
+
+      - name: Revalidate master immediately before push
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/release/revalidate-master.sh
+
+      - name: Publish version and commit SHA tags
+        run: bash scripts/release/publish-image.sh
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: bash scripts/release/create-release.sh
