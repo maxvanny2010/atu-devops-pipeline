@@ -448,12 +448,12 @@ The test checks HTTP 200 before requesting the stored task state.
 
 **Verification:**
 
-| Test                       | Result      |
-|----------------------------|-------------|
-| Initial GitHub Actions run | FAIL: 3/4   |
-| Repeated completion test   | PASS: 10/10 |
-| Full local E2E suite       | PASS: 4/4   |
-| GitHub Actions after fix | PASS: 4/4 E2E |
+| Test                       | Result        |
+|----------------------------|---------------|
+| Initial GitHub Actions run | FAIL: 3/4     |
+| Repeated completion test   | PASS: 10/10   |
+| Full local E2E suite       | PASS: 4/4     |
+| GitHub Actions after fix   | PASS: 4/4 E2E |
 
 **Reflection:**
 
@@ -463,7 +463,7 @@ but did not synchronise with the backend operation.
 
 Waiting for the actual HTTP response is more reliable than adding
 a fixed delay. This was a test synchronisation problem based on
-the observed behavior, although the CI rerun is still needed.
+the observed behavior, and the GitHub Actions rerun passed.
 
 **Evidence:**
 
@@ -471,6 +471,55 @@ the observed behavior, although the CI rerun is still needed.
 - `evidence/playwright-ci-race-failure_2.png`
 - `evidence/playwright-race-fix-repeat.png`
 - `evidence/playwright-ci-success.png`
+
+#### Entry 013 - Release Scripts and Security Checks
+
+**Date:** 19 November 2026
+
+**Objective:** Make the release pipeline easier to understand and test.
+
+I first put the release commands directly into the GitHub Actions YAML.
+It worked as a starting point, but the file became long and difficult
+for me to check. I decided to keep the workflow for job order and
+permissions, and move the longer Bash commands into `scripts/release/`.
+
+I kept two jobs. Verify runs the application tests, Docker checks and
+Trivy scan. Publish runs only if Verify succeeds. It uses the same
+Docker image rather than building another one.
+
+During the review, I found a few things to fix: the Docker image name
+was repeated, the downloaded image needed more checks, and a repeated
+release could try to reuse an existing tag. I updated the scripts to
+check the image ID and labels, look for existing releases and tags, and
+check the master commit again before publishing.
+
+**How I used ChatGPT:**
+
+I planned the pipeline structure and set the requirements for testing,
+security and release behavior. I used ChatGPT to help write the Bash
+and PowerShell code and to review possible errors. I did not simply use
+the first version it produced. Some scripts failed during local checks,
+including a Windows-to-Bash path problem. I tested the changes, reported
+the failures and had the scripts corrected.
+
+**Verification:**
+
+- `actionlint` completed without errors.
+- The release scripts passed Bash syntax checks.
+- Offline tests passed for tags, master SHA, existing releases and
+  image tags, archive checksums and Docker image metadata.
+
+The offline tests use mock commands. They do not prove that publishing
+works on GitHub. I still need to run a real tagged release after the
+Pull Request is merged.
+
+**What I learned:**
+
+ChatGPT helped me write the code faster, but it also made mistakes.
+I needed to decide what the scripts should do and check the results.
+Keeping the scripts separate made those checks easier. A release could
+still partly succeed if the image is pushed but GitHub Release creation
+fails, so that case needs care during the first real release.
 
 ### 3. Future Journal Entries
 

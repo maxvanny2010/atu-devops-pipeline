@@ -95,7 +95,7 @@ Task Manager page -> Spring Boot REST API -> H2
 | `actionlint` on Playwright CI  | ![PASS][pass] |
 
 **Result:** 4/4 browser tests passed in 8.4 seconds. The workflow is<br/>
-configured but has not yet passed a GitHub Actions run.
+verified in GitHub Actions after a Playwright timing fix.
 
 ### Playwright CI Workflow
 
@@ -113,7 +113,7 @@ manual dispatch. The Ubuntu job:
 
 The Maven build remains part of this job because the browser needs a<br/>
 running backend. The separate Java CI job still enforces its own<br/>
-coverage gate. GitHub execution of the Playwright job is pending.
+coverage gate. The Playwright job passed in GitHub Actions.
 
 ## Code Coverage and Quality Gates
 
@@ -176,7 +176,7 @@ a branch protection rule or ruleset that requires the check.
 - CI concurrency cancels superseded branch runs.
 
 The Docker runtime smoke-test step passed in GitHub Actions.<br/>
-Playwright CI passed local YAML linting; its GitHub run is pending.
+Playwright CI passed locally and in GitHub Actions.
 
 ## Docker Build Architecture
 
@@ -267,18 +267,16 @@ Version selection (Semantic Versioning)
 Git tag vX.Y.Z
          |
          v
-GitHub Release
+Verify: tests, build, runtime checks, Trivy
          |
          v
-Build and publish image to GHCR
-         |
-         +--> Vulnerability scan
-         +--> Generate SBOM
-         +--> Generate provenance
-         +--> Sign and verify artifact
+Transfer verified Docker image to Publish
          |
          v
-Record immutable image digest
+Check image and publish to GHCR
+         |
+         v
+Create GitHub Release and record image digest
          |
          v
 Deploy verified image by digest
@@ -435,3 +433,39 @@ Evidence should include both positive and negative outcomes:
 - Tagged release and immutable artifact traceability.
 
 [pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
+
+### Release workflow orchestration and scripts
+
+`.github/workflows/release.yml` owns triggers, job dependencies, action
+permissions, tool setup, third-party actions, and artifact transfer.
+`scripts/release/` owns complex Bash operations such as tag validation,
+application startup and health checks, image packaging, SHA-256 verification,
+registry publication, and GitHub Release creation.
+
+Verify has read-only repository permission. Publish needs write access to
+repository releases and GHCR packages. Publishing depends on the successful
+Verify job. The checked Docker image is transferred between jobs as an
+artifact and loaded without rebuilding, preserving its tested content.
+The publish-side checkout is required to access the local shell scripts.
+
+A checksum detects accidental transfer corruption but is not a separate
+cryptographic provenance attestation. Real release behavior must be tested
+on GitHub Actions before claiming a production-verified release process.
+
+### Release Verification and Publishing Boundaries
+
+The release workflow controls job order; `scripts/release/` contains
+the longer Bash commands. An image is built and scanned in Verify, then
+stored as a compressed Docker archive. Its SHA-256 checksums and Docker
+image ID are uploaded with it.
+
+Publish downloads the artifact without rebuilding it, verifies the file
+checksums, and checks the loaded image ID, full Git revision and source
+OCI labels. A preflight step refuses existing GitHub Releases and GHCR
+tags; a master-SHA check executes immediately before publishing.
+
+The file checksum is not an independent supply-chain attestation, because
+it accompanies the image in the same artifact. Tag checks can race with
+other registry writers; registry-side immutability or protected releases
+would provide stronger enforcement. Partial publication remains possible
+if GHCR succeeds but GitHub Release creation fails.
