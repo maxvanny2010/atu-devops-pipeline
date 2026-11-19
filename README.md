@@ -536,3 +536,57 @@ docker pull ghcr.io/maxvanny2010/atu-devops-pipeline:v0.1.1
 **GitHub Release with source commit and image digest:**
 
 ![GitHub Release v0.1.1 with image digest](evidence/ghcr-release-v0.1.1-details.png)
+
+### Kubernetes and Kustomize Implementation
+
+The Kubernetes configuration is stored in `k8s/`. I used Kustomize
+to share one Deployment and Service between local and production
+configurations without copying the same YAML files.
+
+- `k8s/base/` contains the shared Deployment and Service.
+- `k8s/overlays/release/` defines the GHCR image and version `v0.1.1`.
+- `k8s/overlays/local/` configures the local environment.
+- `k8s/overlays/prod/` configures the production environment.
+
+Both environments currently use one replica because the application
+uses an embedded H2 database. Running multiple independent replicas
+would not provide shared application data.
+
+The Deployment runs as non-root, disables privilege escalation,
+uses a read-only root filesystem, drops Linux capabilities, and
+configures startup, readiness, and liveness probes.
+
+A memory-backed `emptyDir` provides writable temporary storage at
+`/app/tmp`.
+
+#### Kubernetes Validation
+
+Build the generated manifests without starting a cluster:
+
+```powershell
+kubectl kustomize k8s/overlays/local
+kubectl kustomize k8s/overlays/prod
+```
+
+The GitHub Actions workflow
+`.github/workflows/kubernetes-validation.yml` builds both overlays
+and checks the expected image, replica count, Kubernetes resources,
+health probes, and key security settings.
+
+**Local verification (19 November 2026):**
+
+- Local Kustomize build: PASS.
+- Production Kustomize build: PASS.
+- GitHub Actions workflow syntax (`actionlint`): PASS.
+
+These checks do not prove that the application runs in Kubernetes.
+Cluster deployment, application health, and rollout verification
+remain to be completed.
+
+#### Kubernetes References
+
+- [Kubernetes Kustomize documentation](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/)
+- [Kubernetes Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+- [Kubernetes Services](https://kubernetes.io/docs/concepts/services-networking/service/)
+- [Kubernetes health probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
+- [GitHub Actions documentation](https://docs.github.com/en/actions)

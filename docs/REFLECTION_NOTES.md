@@ -628,3 +628,54 @@ using evidence from validated project work.
 [github-dependabot]: https://github.blog/engineering/platform-security/
 
 [reddit-dependencies]: https://www.reddit.com/r/RedditEng/
+
+#### Entry 016 - Kubernetes and Kustomize
+
+**Date:** 19 November 2026
+
+**Objective:** Prepare Kubernetes deployment files and automate
+their validation before attempting a real deployment.
+
+I used the official Kubernetes documentation to understand
+Deployments, Services and Kustomize.
+
+I started with one Deployment and Service. The first version
+contained the GHCR image version directly in the Deployment.
+I then moved the image name and version into a shared release
+overlay to avoid repeating them in multiple environment files.
+
+Local and production overlays now reuse the same base configuration.
+Both use one replica because the application currently uses H2.
+Two replicas could have different data without a shared database.
+
+I kept port 8080, the non-root user, security restrictions and
+health endpoints in the base because they are common application
+requirements.
+
+**Verification:**
+
+- `kubectl kustomize` generated both environment manifests.
+- Both outputs used the expected `v0.1.1` GHCR image.
+- Both outputs configured one replica.
+- `actionlint` passed for the Kubernetes validation workflow.
+
+**Reflection:**
+
+I learned that Kustomize does not replace variables inside the
+original YAML files. Instead, it combines a shared base with
+environment-specific changes to produce a final manifest.
+
+This avoids copying entire Deployment files when only a few
+settings need to change.
+
+The next step is to validate the workflow in GitHub Actions and
+test the application in a real Kubernetes cluster. I have not
+yet verified deployment, networking, or application health in
+Kubernetes.
+
+**References:**
+
+- https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/
+- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+- https://kubernetes.io/docs/concepts/services-networking/service/
+- https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
