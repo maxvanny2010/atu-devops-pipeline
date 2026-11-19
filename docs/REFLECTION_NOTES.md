@@ -509,9 +509,9 @@ the failures and had the scripts corrected.
 - Offline tests passed for tags, master SHA, existing releases and
   image tags, archive checksums and Docker image metadata.
 
-The offline tests use mock commands. They do not prove that publishing
-works on GitHub. I still need to run a real tagged release after the
-Pull Request is merged.
+The offline tests use mock commands, so at this stage they did not prove
+that publishing worked on GitHub. I planned a separate tagged release
+for end-to-end verification.
 
 **What I learned:**
 
@@ -553,8 +553,58 @@ only their line endings changed.
 **Reflection:** A local PASS did not independently demonstrate that
 the checks worked in CI. The GitHub Actions run gives reproducible
 evidence tied to a commit. Negative cases confirm that unsafe release
-inputs are rejected. This still does not verify actual GHCR publishing;
-that requires a separate tagged release test.
+inputs are rejected. These tests did not verify GHCR publishing on their own.</br>
+I checked that separately with a tagged release.
+
+#### Entry 015 - First GHCR Release and Security Fix
+
+**Date:** 19 November 2026
+
+**Objective:** Publish the first tested version of the Task Manager
+through GitHub Actions.
+
+I created tag `v0.1.0` on `master` and started the release workflow.
+The Verify job built the application and ran its checks, but Trivy found
+one HIGH vulnerability in the Pebble binary included in the Java 21
+base image. The job failed, so the Publish job did not release the image.
+
+I looked at the scan result instead of bypassing it. I changed the
+extract and runtime images to `eclipse-temurin:21-jre-noble` while keeping
+Java 21. The base image did not contain Pebble, and the new complete
+application image passed the local Trivy scan with 0 HIGH and 0 CRITICAL
+findings.
+
+Running the Docker smoke test locally was less straightforward. Git Bash
+first failed on Windows CRLF line endings, so I added a Git rule to keep
+the Docker Bash scripts in LF format. Running the test inside a helper
+container then verified the non-root user and security settings, but its
+HTTP health check timed out. The application itself started in the logs.
+I used the GitHub Actions Docker Security run on Ubuntu for the final
+smoke-test verification rather than claiming that local test passed.
+
+The PR #12 checks passed. After the merge, a separate Docker build on
+`master` failed to resolve a Maven parent POM. It passed when rerun.
+I could not prove why that download failed, so I kept the issue separate
+from the Trivy vulnerability.
+
+**First successful release:** I tagged the merged commit `8a5f21a` as
+`v0.1.1`. The Release and GHCR workflow completed successfully. GitHub
+Container Registry now holds the public versioned image and GitHub
+Releases records its commit and image digest.
+
+**Evidence:**
+
+- `evidence/ghcr-release-v0.1.1-actions.png`
+- `evidence/ghcr-release-v0.1.1-package.png`
+- `evidence/ghcr-release-v0.1.1-details.png`
+
+**Reflection:** This was a major milestone because the pipeline did more
+than pass tests: it produced a versioned image that can be deployed.
+The failed `v0.1.0` attempt was also useful. It showed that the security
+gate really stops a release when a HIGH vulnerability is found. I kept
+that failed run as evidence and used a new tag for the corrected release,
+rather than moving the old one. The next step is to deploy the published
+image to Kubernetes and test its health and rollback.
 
 ### 3. Future Journal Entries
 

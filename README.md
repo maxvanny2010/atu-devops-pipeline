@@ -39,7 +39,8 @@ The REST API, Maven tests, JaCoCo gate, Java CI, SonarQube, and Docker<br/>
 build have passed verification. Docker smoke and manual negative tests<br/>
 also passed in GitHub Actions. Dependabot opened four update PRs.<br/>
 The Task Manager frontend and all four Playwright E2E tests passed<br/>
-locally and in GitHub Actions on 18 November 2026.
+locally and in GitHub Actions on 18 November 2026. The first successful<br/>
+tagged release, `v0.1.1`, was published to GHCR on 19 November 2026.
 
 #### Technology Stack
 
@@ -418,8 +419,9 @@ before verifying the persisted task status.
 Backend tests, quality checks, Docker build, positive smoke tests,<br/>
 Trivy scanning, and manual negative tests are verified in GitHub<br/>
 Actions. Dependabot PR creation is verified. Frontend E2E tests passed<br/>
-locally (4/4) and in GitHub Actions. Kubernetes, release automation, supply-chain<br/>
-attestations, and observability remain unverified.
+locally (4/4) and in GitHub Actions. Release `v0.1.1` was verified and<br/>
+published to GHCR. Kubernetes deployment, supply-chain attestations,<br/>
+and observability remain unverified.
 
 [pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
 
@@ -444,7 +446,8 @@ and commit SHA tags, and creates the GitHub Release with its image digest.
 
 A release is triggered by a stable SemVer tag such as `v0.1.0` pointing to
 the current `master` commit. No image is published from pull requests.
-This workflow has not been exercised by a real tag yet.
+The workflow was verified by the successful `v0.1.1` release on
+19 November 2026.
 
 ### Release Security Hardening and Offline Checks
 
@@ -466,8 +469,8 @@ bash scripts/release/test-release-scripts.sh
 ```
 
 Also run `actionlint .github/workflows/release.yml` and syntax checks
-for all release scripts. The tests use mocked services; an actual
-GitHub Actions release remains unverified until a tagged run succeeds.
+for all release scripts. The tests use mocked services. Real release</br>
+verification was later completed by the successful tagged `v0.1.1` run.
 
 ### Automated Release Script Tests
 
@@ -491,3 +494,45 @@ initial Maven failure was not confirmed.
 **GitHub Actions: Release Script Validation — PASS (19 November 2026).**
 
 ![Release script tests passed in GitHub Actions](evidence/release-script-tests-github-actions-pass.png)
+
+### First Published Release - v0.1.1
+
+**19 November 2026 - Release and GHCR: PASS.**
+
+The first attempt, `v0.1.0`, stopped at the Trivy security gate. Trivy
+found a HIGH vulnerability in the Pebble binary in the original Java 21
+runtime image. No package was published by that failed run.
+
+I changed the extract and runtime stages to
+`eclipse-temurin:21-jre-noble`. The new image passed a complete local Trivy
+scan with 0 HIGH and 0 CRITICAL findings. GitHub Actions then passed the
+Docker checks for PR #12. The Docker CI run on `master` initially failed
+while downloading a Maven dependency, but passed when rerun.
+
+After merging PR #12, I created the `v0.1.1` tag on `master`. GitHub Actions
+completed both release jobs and published the tested Docker image to GHCR.
+The GitHub Release records the source commit and immutable image digest.
+
+| Release evidence                                                                                            | Verified result                         |
+|-------------------------------------------------------------------------------------------------------------|-----------------------------------------|
+| [Release workflow](https://github.com/maxvanny2010/atu-devops-pipeline/actions/workflows/release.yml)       | `v0.1.1` PASS                           |
+| [Container package](https://github.com/maxvanny2010/atu-devops-pipeline/pkgs/container/atu-devops-pipeline) | Public, `v0.1.1` and `sha-8a5f21a3d9db` |
+| [GitHub Release](https://github.com/maxvanny2010/atu-devops-pipeline/releases/tag/v0.1.1)                   | Published, commit `8a5f21a`             |
+
+Pull the published image:
+
+```bash
+docker pull ghcr.io/maxvanny2010/atu-devops-pipeline:v0.1.1
+```
+
+**Release workflow - successful run:**
+
+![Release and GHCR v0.1.1 passed](evidence/ghcr-release-v0.1.1-actions.png)
+
+**Published image in GitHub Container Registry:**
+
+![GHCR v0.1.1 container package](evidence/ghcr-release-v0.1.1-package.png)
+
+**GitHub Release with source commit and image digest:**
+
+![GitHub Release v0.1.1 with image digest](evidence/ghcr-release-v0.1.1-details.png)
