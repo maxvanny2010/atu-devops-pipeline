@@ -1,4 +1,4 @@
-﻿.git
+.git
 .github
 .sonar
 .maven-cache
@@ -11,8 +11,6 @@ e2e
 k8s
 docker
 scripts
-src/main/resources/static
-src/main/resources/templates
 *.log
 .env
 .env.*

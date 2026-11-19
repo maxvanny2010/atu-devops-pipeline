@@ -170,4 +170,14 @@ if ! printf '%s' "$api_response" |
 fi
 
 echo "PASS: GET /api/tasks responded"
+echo "=== VERIFY FRONTEND ==="
+
+for path in "/" "/index.html" "/styles.css" "/app.js"; do
+  if ! curl -fsS --max-time 10 "${base_url}${path}" >/dev/null; then
+    echo "FAIL: Frontend request failed: $path"
+    exit 1
+  fi
+
+  echo "PASS: Frontend $path returned HTTP 200"
+done
 echo "PASS: Docker runtime smoke test completed"

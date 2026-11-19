@@ -2,28 +2,24 @@
 
 **Atlantic Technological University (ATU)**
 
-**Programme:** Postgraduate Diploma in Computing in DevOps<br/>
-**Module:** DevOps Software Engineering<br/>
-**Lecturer:** Maria Griffin<br/>
-**Student:** Maksym Voronianskyi<br/>
-**Student Number:** L00213593<br/>
-**Academic Year:** 2026/2027
+**Programme:** Postgraduate Diploma in Computing in DevOps **Module:** DevOps<br/>
+Software Engineering **Lecturer:** Maria Griffin **Student:** Maksym<br/>
+Voronianskyi **Student Number:** L00213593 **Academic Year:** 2026/2027
 
-**Technologies:** Java 21, Spring Boot, Maven, JUnit, Mockito,<br/>
-JaCoCo, Git, GitHub Actions, SonarQube, Trivy, Dependabot, Docker,<br/>
-Docker Compose, HTML, CSS, JavaScript, Playwright, GHCR, Kubernetes,<br/>
-Kustomize, Terraform, Actuator, Micrometer, Prometheus, Grafana,<br/>
-Slack, SBOM, Software Provenance, Image Signing, Semantic Versioning
+**Technologies:** Java 21, Spring Boot, Maven, JUnit, Mockito, JaCoCo, Git,<br/>
+GitHub Actions, SonarQube, Trivy, Dependabot, Docker, Docker Compose, HTML,<br/>
+CSS, JavaScript, Playwright, GHCR, Kubernetes, Kustomize, Terraform, Actuator,<br/>
+Micrometer, Prometheus, Grafana, Slack, SBOM, Software Provenance, Image<br/>
+Signing, Semantic Versioning
 
 ---
 
 ### Purpose
 
 This document records technical decisions, engineering trade-offs,<br/>
-implementation outcomes, and verifiable evidence from development of<br/>
-the CI/CD pipeline. It provides source material for Task 4:<br/>
-Reflective Analysis. Only observed results are represented as<br/>
-completed work.
+implementation outcomes, and verifiable evidence from development of the CI/CD<br/>
+pipeline. It provides source material for Task 4: Reflective Analysis. Only<br/>
+observed results are represented as completed work.
 
 ### 1. Initial Architecture Decisions
 
@@ -31,34 +27,30 @@ completed work.
 
 #### Project Scope
 
-A small Spring Boot Task Manager is used so that the central<br/>
-engineering focus remains automated delivery, security, reliability,<br/>
-and observability.
+A small Spring Boot Task Manager is used so that the central engineering focus<br/>
+remains automated delivery, security, reliability, and observability.
 
 #### CI/CD Platform
 
-GitHub Actions was selected for CI/CD automation. Jenkins was<br/>
-considered as an alternative, but GitHub Actions integrates directly<br/>
-with the repository without maintaining a dedicated Jenkins server.
+GitHub Actions was selected for CI/CD automation. Jenkins was considered as an<br/>
+alternative, but GitHub Actions integrates directly with the repository without<br/>
+maintaining a dedicated Jenkins server.
 
 #### Testing Strategy
 
-The testing approach combines JUnit, Mockito, Spring Boot<br/>
-integration tests, Playwright browser tests, and JaCoCo coverage<br/>
-enforcement.
+The testing approach combines JUnit, Mockito, Spring Boot integration tests,<br/>
+Playwright browser tests, and JaCoCo coverage enforcement.
 
 #### Security Strategy
 
-SonarQube and Trivy provide code quality and vulnerability scanning.<br/>
-Further controls address workflow permissions, container privileges,<br/>
-secrets, dependency maintenance, and software supply chain<br/>
-integrity.
+SonarQube and Trivy provide code quality and vulnerability scanning. Further<br/>
+controls address workflow permissions, container privileges, secrets,<br/>
+dependency maintenance, and software supply chain integrity.
 
 #### Deployment Strategy
 
-Docker provides reproducible packaging; Kubernetes provides<br/>
-orchestration. Terraform may be used where infrastructure<br/>
-provisioning adds clear value.
+Docker provides reproducible packaging; Kubernetes provides orchestration.<br/>
+Terraform may be used where infrastructure provisioning adds clear value.
 
 #### Monitoring Strategy
 
@@ -67,9 +59,8 @@ observability design. Slack provides operational notifications.
 
 #### Release Strategy
 
-Conventional Commits and Semantic Versioning support release<br/>
-traceability. Versioned artifacts will be linked to immutable<br/>
-container digests.
+Conventional Commits and Semantic Versioning support release traceability.<br/>
+Versioned artifacts will be linked to immutable container digests.
 
 ### 2. Implementation Journal
 
@@ -89,18 +80,16 @@ container digests.
 
 **Decision:**
 
-Keep the primary technical documentation in README and Architecture.<br/>
-Maintain separate Reflection Notes to support Task 4.
+Keep the primary technical documentation in README and Architecture. Maintain<br/>
+separate Reflection Notes to support Task 4.
 
-**Outcome:** Repository structure established for incremental<br/>
-development.
+**Outcome:** Repository structure established for incremental development.
 
 #### Entry 002 - Task Manager REST API
 
 **Date:** 17 November 2026
 
-**Implemented:** Spring Boot 4.1.2 CRUD API, H2, validation, and<br/>
-HTTP 400/404.
+**Implemented:** Spring Boot 4.1.2 CRUD API, H2, validation, and HTTP 400/404.
 
 **Engineering work:**
 
@@ -120,9 +109,8 @@ HTTP 400/404.
 
 **Date:** 17 November 2026
 
-JaCoCo 0.8.16 was integrated into Maven verification. Nine automated<br/>
-tests passed with 88% instruction coverage. The 80% Quality Gate<br/>
-passed.
+JaCoCo 0.8.16 was integrated into Maven verification. Nine automated tests<br/>
+passed with 88% instruction coverage. The 80% Quality Gate passed.
 
 | Verification     | Result        |
 |------------------|---------------|
@@ -134,9 +122,8 @@ passed.
 
 **Date:** 17 November 2026
 
-Created the Java 21 Maven CI workflow with automated testing,<br/>
-coverage, and test report artifact uploads. Feature-branch triggers<br/>
-were configured.
+Created the Java 21 Maven CI workflow with automated testing, coverage, and<br/>
+test report artifact uploads. Feature-branch triggers were configured.
 
 | Verification                     | Result        |
 |----------------------------------|---------------|
@@ -148,8 +135,7 @@ were configured.
 
 **Date:** 17 November 2026
 
-**Objective:** Evaluate code quality using SonarQube Community<br/>
-Build.
+**Objective:** Evaluate code quality using SonarQube Community Build.
 
 **Implementation and findings:**
 
@@ -159,9 +145,9 @@ Build.
 - Replaced Java `assert` with JUnit `assertNotNull()`.
 - Repeated Maven verification and SonarQube analysis.
 
-**Reflection:** A passing test suite does not eliminate all code<br/>
-quality issues. Static analysis detected an assertion that might be<br/>
-disabled in normal JVM execution without `-ea`.
+**Reflection:** A passing test suite does not eliminate all code quality<br/>
+issues. Static analysis detected an assertion that might be disabled in normal<br/>
+JVM execution without `-ea`.
 
 | Verification                 | Result        |
 |------------------------------|---------------|
@@ -175,8 +161,8 @@ Before-and-after screenshots are retained under `evidence/`.
 
 **Date:** 17 November 2026
 
-**Objective:** Package the application in a secure Docker image and<br/>
-introduce automated image vulnerability scanning.
+**Objective:** Package the application in a secure Docker image and introduce<br/>
+automated image vulnerability scanning.
 
 **Implementation:**
 
@@ -189,19 +175,16 @@ introduce automated image vulnerability scanning.
 
 **Engineering decisions:**
 
-A writable `tmpfs` at `/app/tmp` allows application temporary files<br/>
-while keeping the root filesystem read-only. Explicit UID/GID mount<br/>
-options ensure the non-root application process can use this<br/>
-directory.
+A writable `tmpfs` at `/app/tmp` allows application temporary files while<br/>
+keeping the root filesystem read-only. Explicit UID/GID mount options ensure<br/>
+the non-root application process can use this directory.
 
-The extracted Spring Boot application uses the correct layered JAR<br/>
-entrypoint. Trivy scan execution was configured with an adequate<br/>
-timeout.
+The extracted Spring Boot application uses the correct layered JAR entrypoint.<br/>
+Trivy scan execution was configured with an adequate timeout.
 
-**Reflection:** Building an image does not prove that it starts<br/>
-correctly. Runtime checks are required to validate actual<br/>
-permissions and application availability under the selected security<br/>
-restrictions.
+**Reflection:** Building an image does not prove that it starts correctly.<br/>
+Runtime checks are required to validate actual permissions and application<br/>
+availability under the selected security restrictions.
 
 | Verification                     | Result        |
 |----------------------------------|---------------|
@@ -217,8 +200,7 @@ The cited GitHub Actions run covered image build and Trivy scanning.
 
 **Date:** 18 November 2026
 
-**Objective:** Improve CI security, dependency maintenance, and<br/>
-efficiency.
+**Objective:** Improve CI security, dependency maintenance, and efficiency.
 
 **Implementation:**
 
@@ -230,41 +212,37 @@ efficiency.
 
 **Engineering rationale:**
 
-SHA pinning prevents a movable tag from silently selecting different<br/>
-Action code. Dependabot can propose controlled upgrades as<br/>
-reviewable Pull Requests, retaining reproducibility without freezing<br/>
-dependencies.
+SHA pinning prevents a movable tag from silently selecting different Action<br/>
+code. Dependabot can propose controlled upgrades as reviewable Pull Requests,<br/>
+retaining reproducibility without freezing dependencies.
 
-CI runs can cancel superseded work. Deployment runs require a<br/>
-different policy to avoid interrupting active releases.
+CI runs can cancel superseded work. Deployment runs require a different policy<br/>
+to avoid interrupting active releases.
 
 **Industry context:**
 
-GitHub Engineering describes operational Dependabot usage. Reddit<br/>
-Engineering has documented prior Dependabot use and its later<br/>
-migration to Renovate to support different dependency management<br/>
-requirements. Neither replaces testing and review of proposed<br/>
-updates.
+GitHub Engineering describes operational Dependabot usage. Reddit Engineering<br/>
+has documented prior Dependabot use and its later migration to Renovate to<br/>
+support different dependency management requirements. Neither replaces testing<br/>
+and review of proposed updates.
 
 **References:**
 
 - [GitHub Engineering: Dependabot][github-dependabot]
 - [Reddit Engineering: Dependency management][reddit-dependencies]
 
-**Trade-off:** Pinned components require maintenance. Automated<br/>
-updates still require review and a passing CI pipeline before<br/>
-merging.
+**Trade-off:** Pinned components require maintenance. Automated updates still<br/>
+require review and a passing CI pipeline before merging.
 
-**Verification:** Dependabot opened four update PRs after the Docker<br/>
-work reached `master`. CI checks ran on those PRs.
+**Verification:** Dependabot opened four update PRs after the Docker work<br/>
+reached `master`. CI checks ran on those PRs.
 
 #### Entry 008 - Automated Docker Runtime Smoke Tests
 
 **Date:** 18 November 2026
 
-**Objective:** Verify that the built image runs the Spring Boot<br/>
-application under the configured Docker runtime security<br/>
-restrictions.
+**Objective:** Verify that the built image runs the Spring Boot application<br/>
+under the configured Docker runtime security restrictions.
 
 **Implementation:**
 
@@ -280,15 +258,13 @@ restrictions.
 
 **Engineering rationale:**
 
-A Docker build and vulnerability scan do not establish that the<br/>
-application can actually run with hardened runtime settings. The<br/>
-smoke test verifies these constraints and application availability<br/>
-before the security scan.
+A Docker build and vulnerability scan do not establish that the application can<br/>
+actually run with hardened runtime settings. The smoke test verifies these<br/>
+constraints and application availability before the security scan.
 
-A separate Bash script is reusable locally and in GitHub Actions.<br/>
-Dynamic host port discovery avoids conflicts with existing services.<br/>
-The security contract also defines requirements for future<br/>
-Kubernetes deployment.
+A separate Bash script is reusable locally and in GitHub Actions. Dynamic host<br/>
+port discovery avoids conflicts with existing services. The security contract<br/>
+also defines requirements for future Kubernetes deployment.
 
 | Local verification (18 November 2026) | Result        |
 |---------------------------------------|---------------|
@@ -300,17 +276,17 @@ Kubernetes deployment.
 | Spring Boot health endpoint           | ![PASS][pass] |
 | REST API smoke response               | ![PASS][pass] |
 
-**Limitations:** HTTP smoke checks do not replace full integration<br/>
-tests or security scanning. The Docker runtime smoke test passed in<br/>
-GitHub Actions; negative cases are checked by a separate workflow.
+**Limitations:** HTTP smoke checks do not replace full integration tests or<br/>
+security scanning. The Docker runtime smoke test passed in GitHub Actions;<br/>
+negative cases are checked by a separate workflow.
 
 #### Entry 009 - Negative Docker Runtime Tests
 
 **Date:** 18 November 2026
 
-The positive smoke test checks a correctly configured container.<br/>
-I added three negative cases to confirm that the script also reports<br/>
-expected failures instead of returning success for every input.
+The positive smoke test checks a correctly configured container. I added three<br/>
+negative cases to confirm that the script also reports expected failures<br/>
+instead of returning success for every input.
 
 | Scenario                   | Actual exit code | Result        |
 |----------------------------|-----------------:|---------------|
@@ -318,22 +294,22 @@ expected failures instead of returning success for every input.
 | Invalid container port     |                1 | ![PASS][pass] |
 | Missing API endpoint (404) |               22 | ![PASS][pass] |
 
-The tests compare exit codes and error text. All three passed locally<br/>
-and in a manual GitHub Actions run. I kept them outside the regular<br/>
-CI workflow because they check the test mechanism, not each new build.
+The tests compare exit codes and error text. All three passed locally and in a<br/>
+manual GitHub Actions run. I kept them outside the regular CI workflow because<br/>
+they check the test mechanism, not each new build.
 
 #### Entry 010 - Dependabot and Trivy Security Gate
 
 **Date:** 18 November 2026
 
-Once the Docker changes were merged, Dependabot opened four update<br/>
-PRs. This confirmed that the dependency update configuration worked.<br/>
-The PRs were automatically tested by Java CI and Docker CI.
+Once the Docker changes were merged, Dependabot opened four update PRs. This<br/>
+confirmed that the dependency update configuration worked. The PRs were<br/>
+automatically tested by Java CI and Docker CI.
 
-PR #6 proposed changing the Java runtime image from version 21 to 24.<br/>
-The Java checks and Docker runtime smoke test passed. Trivy then found<br/>
-16 HIGH vulnerabilities in the Ubuntu 24.04 image and exited with<br/>
-code 1. The Docker check failed, although the PR remained open.
+PR #6 proposed changing the Java runtime image from version 21 to 24. The Java<br/>
+checks and Docker runtime smoke test passed. Trivy then found 16 HIGH<br/>
+vulnerabilities in the Ubuntu 24.04 image and exited with code 1. The Docker<br/>
+check failed, although the PR remained open.
 
 | PR #6 check                 | Result        |
 |-----------------------------|---------------|
@@ -341,24 +317,24 @@ code 1. The Docker check failed, although the PR remained open.
 | Docker build and smoke test | ![PASS][pass] |
 | Trivy: 16 HIGH, 0 CRITICAL  | Failed check  |
 
-The result changed how I view dependency upgrades: a newer base image<br/>
-is not automatically a safer one. Testing and scanning need to happen<br/>
-before a dependency update is accepted. I kept the project on Java 21<br/>
-and did not merge the suggested major-version update.
+The result changed how I view dependency upgrades: a newer base image is not<br/>
+automatically a safer one. Testing and scanning need to happen before a<br/>
+dependency update is accepted. I kept the project on Java 21 and did not merge<br/>
+the suggested major-version update.
 
-The scan failed the PR check, but failed checks alone do not guarantee<br/>
-that a merge is blocked. A branch protection rule or ruleset would be<br/>
-needed to enforce that restriction.
+The scan failed the PR check, but failed checks alone do not guarantee that a<br/>
+merge is blocked. A branch protection rule or ruleset would be needed to<br/>
+enforce that restriction.
 
-**Evidence:** See the Dependabot PR list, PR #6 checks, Trivy log,<br/>
-and manual negative-test run linked from the README.
+**Evidence:** See the Dependabot PR list, PR #6 checks, Trivy log, and manual<br/>
+negative-test run linked from the README.
 
 #### Entry 011 - Task Manager Frontend and Playwright E2E
 
 **Date:** 18 November 2026
 
-**Objective:** Add a usable browser interface to the existing REST API<br/>
-and test real user actions end to end.
+**Objective:** Add a usable browser interface to the existing REST API and test<br/>
+real user actions end to end.
 
 **Implementation:**
 
@@ -376,15 +352,15 @@ and test real user actions end to end.
 **Problems encountered and responses:**
 
 The initial `npm init -y` and `npm install` failed because the existing<br/>
-`package.json` was empty, not valid JSON. I replaced the empty file<br/>
-with a minimal valid package definition and then installed Playwright.<br/>
-The dependency lockfile allows CI to use `npm ci` rather than resolving<br/>
-a new dependency tree on every run.
+`package.json` was empty, not valid JSON. I replaced the empty file with a<br/>
+minimal valid package definition and then installed Playwright. The dependency<br/>
+lockfile allows CI to use `npm ci` rather than resolving a new dependency tree<br/>
+on every run.
 
-The first Spring Boot startup failed because port 8080 was already in<br/>
-use. I ran the application on port 8081 instead and used that port in<br/>
-Playwright configuration and the proposed CI job. This avoids stopping<br/>
-an unrelated local service.
+The first Spring Boot startup failed because port 8080 was already in use. I<br/>
+ran the application on port 8081 instead and used that port in Playwright<br/>
+configuration and the proposed CI job. This avoids stopping an unrelated local<br/>
+service.
 
 **Verification (local, 18 November 2026):**
 
@@ -398,51 +374,49 @@ an unrelated local service.
 | Playwright test discovery   | ![PASS][pass] |
 | `actionlint` workflow check | ![PASS][pass] |
 
-All four Playwright tests passed locally in 8.4 seconds. The workflow<br/>
-passed `actionlint`, and eight implementation files were staged with<br/>
-no errors from `git diff --cached --check`.
+All four Playwright tests passed locally in 8.4 seconds. The workflow passed<br/>
+`actionlint`, and eight implementation files were staged with no errors from<br/>
+`git diff --cached --check`.
 
-**Reflection:** A working API and passing Java tests did not show<br/>
-whether a user could create or update tasks in a real browser. The<br/>
-Playwright tests cover these actions and check the resulting API state.<br/>
-Keeping the frontend small makes it easier to focus on the CI/CD<br/>
-assignment instead of frontend framework setup. The separate browser<br/>
-workflow also makes E2E failures easier to identify independently of<br/>
-Java tests and Docker security results.
+**Reflection:** A working API and passing Java tests did not show whether a<br/>
+user could create or update tasks in a real browser. The Playwright tests cover<br/>
+these actions and check the resulting API state. Keeping the frontend small<br/>
+makes it easier to focus on the CI/CD assignment instead of frontend framework<br/>
+setup. The separate browser workflow also makes E2E failures easier to identify<br/>
+independently of Java tests and Docker security results.
 
-**Limitations and next verification:** The four E2E tests cover basic<br/>
-CRUD flows, not every validation error, accessibility concern, or<br/>
-concurrent update. The new workflow has not run on GitHub Actions yet.<br/>
-Only local E2E results are recorded as PASS. After a feature-branch<br/>
-push, the GitHub run and its uploaded artifacts must be reviewed before<br/>
-calling CI verification complete.
+**Limitations and next verification:** The four E2E tests cover basic CRUD<br/>
+flows, not every validation error, accessibility concern, or concurrent update.<br/>
+The new workflow has not run on GitHub Actions yet. Only local E2E results are<br/>
+recorded as PASS. After a feature-branch push, the GitHub run and its uploaded<br/>
+artifacts must be reviewed before calling CI verification complete.
 
 #### Entry 012 - Playwright CI Race Condition
 
 **Date:** 18 November 2026
 
-**Objective:** Investigate a Playwright test that passed locally
-but failed in GitHub Actions.
+**Objective:** Investigate a Playwright test that passed locally but failed in<br/>
+GitHub Actions.
 
 **Problem:**
 
-The first GitHub Actions E2E run passed three tests and failed one.
-The completion test expected `completed: true`, but the backend
-returned `completed: false`.
+The first GitHub Actions E2E run passed three tests and failed one. The<br/>
+completion test expected `completed: true`, but the backend returned<br/>
+`completed: false`.
 
 **Analysis:**
 
-The frontend sends an asynchronous PATCH request when the user
-checks a task. The original test checked the checkbox and then
-immediately requested the task state through the API.
+The frontend sends an asynchronous PATCH request when the user checks a task.<br/>
+The original test checked the checkbox and then immediately requested the task<br/>
+state through the API.
 
-Checking the checkbox did not guarantee that the PATCH request
-had completed. This created a likely race condition.
+Checking the checkbox did not guarantee that the PATCH request had completed.<br/>
+This created a likely race condition.
 
 **Solution:**
 
-I changed the Playwright test to wait for the matching HTTP PATCH
-response using `page.waitForResponse()`.
+I changed the Playwright test to wait for the matching HTTP PATCH response<br/>
+using `page.waitForResponse()`.
 
 The test checks HTTP 200 before requesting the stored task state.
 
@@ -457,13 +431,13 @@ The test checks HTTP 200 before requesting the stored task state.
 
 **Reflection:**
 
-A test that passes locally can still fail in CI due to differences
-in request timing. The original test verified the browser checkbox
-but did not synchronise with the backend operation.
+A test that passes locally can still fail in CI due to differences in request<br/>
+timing. The original test verified the browser checkbox but did not synchronise<br/>
+with the backend operation.
 
-Waiting for the actual HTTP response is more reliable than adding
-a fixed delay. This was a test synchronisation problem based on
-the observed behavior, and the GitHub Actions rerun passed.
+Waiting for the actual HTTP response is more reliable than adding a fixed<br/>
+delay. This was a test synchronisation problem based on the observed behavior,<br/>
+and the GitHub Actions rerun passed.
 
 **Evidence:**
 
@@ -478,29 +452,29 @@ the observed behavior, and the GitHub Actions rerun passed.
 
 **Objective:** Make the release pipeline easier to understand and test.
 
-I first put the release commands directly into the GitHub Actions YAML.
-It worked as a starting point, but the file became long and difficult
-for me to check. I decided to keep the workflow for job order and
-permissions, and move the longer Bash commands into `scripts/release/`.
+I first put the release commands directly into the GitHub Actions YAML. It<br/>
+worked as a starting point, but the file became long and difficult for me to<br/>
+check. I decided to keep the workflow for job order and permissions, and move<br/>
+the longer Bash commands into `scripts/release/`.
 
-I kept two jobs. Verify runs the application tests, Docker checks and
-Trivy scan. Publish runs only if Verify succeeds. It uses the same
-Docker image rather than building another one.
+I kept two jobs. Verify runs the application tests, Docker checks and Trivy<br/>
+scan. Publish runs only if Verify succeeds. It uses the same Docker image<br/>
+rather than building another one.
 
-During the review, I found a few things to fix: the Docker image name
-was repeated, the downloaded image needed more checks, and a repeated
-release could try to reuse an existing tag. I updated the scripts to
-check the image ID and labels, look for existing releases and tags, and
-check the master commit again before publishing.
+During the review, I found a few things to fix: the Docker image name was<br/>
+repeated, the downloaded image needed more checks, and a repeated release could<br/>
+try to reuse an existing tag. I updated the scripts to check the image ID and<br/>
+labels, look for existing releases and tags, and check the master commit again<br/>
+before publishing.
 
 **How I used ChatGPT:**
 
-I planned the pipeline structure and set the requirements for testing,
-security and release behavior. I used ChatGPT to help write the Bash
-and PowerShell code and to review possible errors. I did not simply use
-the first version it produced. Some scripts failed during local checks,
-including a Windows-to-Bash path problem. I tested the changes, reported
-the failures and had the scripts corrected.
+I planned the pipeline structure and set the requirements for testing, security<br/>
+and release behavior. I used ChatGPT to help write the Bash and PowerShell code<br/>
+and to review possible errors. I did not simply use the first version it<br/>
+produced. Some scripts failed during local checks, including a Windows-to-Bash<br/>
+path problem. I tested the changes, reported the failures and had the scripts<br/>
+corrected.
 
 **Verification:**
 
@@ -509,35 +483,34 @@ the failures and had the scripts corrected.
 - Offline tests passed for tags, master SHA, existing releases and
   image tags, archive checksums and Docker image metadata.
 
-The offline tests use mock commands, so at this stage they did not prove
-that publishing worked on GitHub. I planned a separate tagged release
-for end-to-end verification.
+The offline tests use mock commands, so at this stage they did not prove that<br/>
+publishing worked on GitHub. I planned a separate tagged release for end-to-end<br/>
+verification.
 
 **What I learned:**
 
-ChatGPT helped me write the code faster, but it also made mistakes.
-I needed to decide what the scripts should do and check the results.
-Keeping the scripts separate made those checks easier. A release could
-still partly succeed if the image is pushed but GitHub Release creation
-fails, so that case needs care during the first real release.
+ChatGPT helped me write the code faster, but it also made mistakes. I needed to<br/>
+decide what the scripts should do and check the results. Keeping the scripts<br/>
+separate made those checks easier. A release could still partly succeed if the<br/>
+image is pushed but GitHub Release creation fails, so that case needs care<br/>
+during the first real release.
 
 #### Entry 014 - Automated Release Script Tests
 
 **Date:** 19 November 2026
 
-**Objective:** Run release-script checks automatically in GitHub Actions
-before attempting the first tagged release.
+**Objective:** Run release-script checks automatically in GitHub Actions before<br/>
+attempting the first tagged release.
 
-I added a dedicated `release-tests.yml` workflow to execute Bash syntax
-checks and the existing offline test suite on an Ubuntu runner. The
-tests use mock GitHub and Docker commands; they verify both accepted
-inputs and expected failures without pushing an image or creating a
-release.
+I added a dedicated `release-tests.yml` workflow to execute Bash syntax checks<br/>
+and the existing offline test suite on an Ubuntu runner. The tests use mock<br/>
+GitHub and Docker commands; they verify both accepted inputs and expected<br/>
+failures without pushing an image or creating a release.
 
-The first local run failed because some Bash scripts had Windows CRLF
-line endings. I converted the release scripts to LF and added a
-`.gitattributes` rule to keep that format. The scripts remained Bash;
-only their line endings changed.
+The first local run failed because some Bash scripts had Windows CRLF line<br/>
+endings. I converted the release scripts to LF and added a `.gitattributes`<br/>
+rule to keep that format. The scripts remained Bash; only their line endings<br/>
+changed.
 
 **Verification:**
 
@@ -550,47 +523,46 @@ only their line endings changed.
 
 **Evidence:** `evidence/release-script-tests-github-actions-pass.png`
 
-**Reflection:** A local PASS did not independently demonstrate that
-the checks worked in CI. The GitHub Actions run gives reproducible
-evidence tied to a commit. Negative cases confirm that unsafe release
-inputs are rejected. These tests did not verify GHCR publishing on their own.</br>
-I checked that separately with a tagged release.
+**Reflection:** A local PASS did not independently demonstrate that the checks<br/>
+worked in CI. The GitHub Actions run gives reproducible evidence tied to a<br/>
+commit. Negative cases confirm that unsafe release inputs are rejected. These<br/>
+tests did not verify GHCR publishing on their own.</br> I checked that<br/>
+separately with a tagged release.
 
 #### Entry 015 - First GHCR Release and Security Fix
 
 **Date:** 19 November 2026
 
-**Objective:** Publish the first tested version of the Task Manager
-through GitHub Actions.
+**Objective:** Publish the first tested version of the Task Manager through<br/>
+GitHub Actions.
 
-I created tag `v0.1.0` on `master` and started the release workflow.
-The Verify job built the application and ran its checks, but Trivy found
-one HIGH vulnerability in the Pebble binary included in the Java 21
-base image. The job failed, so the Publish job did not release the image.
+I created tag `v0.1.0` on `master` and started the release workflow. The Verify<br/>
+job built the application and ran its checks, but Trivy found one HIGH<br/>
+vulnerability in the Pebble binary included in the Java 21 base image. The job<br/>
+failed, so the Publish job did not release the image.
 
-I looked at the scan result instead of bypassing it. I changed the
-extract and runtime images to `eclipse-temurin:21-jre-noble` while keeping
-Java 21. The base image did not contain Pebble, and the new complete
-application image passed the local Trivy scan with 0 HIGH and 0 CRITICAL
-findings.
+I looked at the scan result instead of bypassing it. I changed the extract and<br/>
+runtime images to `eclipse-temurin:21-jre-noble` while keeping Java 21. The<br/>
+base image did not contain Pebble, and the new complete application image<br/>
+passed the local Trivy scan with 0 HIGH and 0 CRITICAL findings.
 
-Running the Docker smoke test locally was less straightforward. Git Bash
-first failed on Windows CRLF line endings, so I added a Git rule to keep
-the Docker Bash scripts in LF format. Running the test inside a helper
-container then verified the non-root user and security settings, but its
-HTTP health check timed out. The application itself started in the logs.
-I used the GitHub Actions Docker Security run on Ubuntu for the final
-smoke-test verification rather than claiming that local test passed.
+Running the Docker smoke test locally was less straightforward. Git Bash first<br/>
+failed on Windows CRLF line endings, so I added a Git rule to keep the Docker<br/>
+Bash scripts in LF format. Running the test inside a helper container then<br/>
+verified the non-root user and security settings, but its HTTP health check<br/>
+timed out. The application itself started in the logs. I used the GitHub<br/>
+Actions Docker Security run on Ubuntu for the final smoke-test verification<br/>
+rather than claiming that local test passed.
 
-The PR #12 checks passed. After the merge, a separate Docker build on
-`master` failed to resolve a Maven parent POM. It passed when rerun.
-I could not prove why that download failed, so I kept the issue separate
-from the Trivy vulnerability.
+The PR #12 checks passed. After the merge, a separate Docker build on `master`<br/>
+failed to resolve a Maven parent POM. It passed when rerun. I could not prove<br/>
+why that download failed, so I kept the issue separate from the Trivy<br/>
+vulnerability.
 
-**First successful release:** I tagged the merged commit `8a5f21a` as
-`v0.1.1`. The Release and GHCR workflow completed successfully. GitHub
-Container Registry now holds the public versioned image and GitHub
-Releases records its commit and image digest.
+**First successful release:** I tagged the merged commit `8a5f21a` as `v0.1.1`.<br/>
+The Release and GHCR workflow completed successfully. GitHub Container Registry<br/>
+now holds the public versioned image and GitHub Releases records its commit and<br/>
+image digest.
 
 **Evidence:**
 
@@ -598,59 +570,35 @@ Releases records its commit and image digest.
 - `evidence/ghcr-release-v0.1.1-package.png`
 - `evidence/ghcr-release-v0.1.1-details.png`
 
-**Reflection:** This was a major milestone because the pipeline did more
-than pass tests: it produced a versioned image that can be deployed.
-The failed `v0.1.0` attempt was also useful. It showed that the security
-gate really stops a release when a HIGH vulnerability is found. I kept
-that failed run as evidence and used a new tag for the corrected release,
-rather than moving the old one. The next step is to deploy the published
-image to Kubernetes and test its health and rollback.
-
-### 3. Future Journal Entries
-
-Each subsequent phase will record its objective, implementation,<br/>
-engineering decisions, observed results, evidence, and limitations.
-
-Do not record planned activities as completed work.
-
-### 4. Task 4 Preparation
-
-The reflective report will evaluate tool selection, architecture,<br/>
-engineering trade-offs, the effects of automation, testing and<br/>
-security, and the benefits and limits of collaboration and<br/>
-reproducible delivery.
-
-The report will compare alternatives and justify future improvements<br/>
-using evidence from validated project work.
-
-[pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
-
-[github-dependabot]: https://github.blog/engineering/platform-security/
-
-[reddit-dependencies]: https://www.reddit.com/r/RedditEng/
+**Reflection:** This was a major milestone because the pipeline did more than<br/>
+pass tests: it produced a versioned image that can be deployed. The failed<br/>
+`v0.1.0` attempt was also useful. It showed that the security gate really stops<br/>
+a release when a HIGH vulnerability is found. I kept that failed run as<br/>
+evidence and used a new tag for the corrected release, rather than moving the<br/>
+old one. The next step is to deploy the published image to Kubernetes and test<br/>
+its health and rollback.
 
 #### Entry 016 - Kubernetes and Kustomize
 
 **Date:** 19 November 2026
 
-**Objective:** Prepare Kubernetes deployment files and automate
-their validation before attempting a real deployment.
+**Objective:** Prepare Kubernetes deployment files and automate their<br/>
+validation before attempting a real deployment.
 
-I used the official Kubernetes documentation to understand
-Deployments, Services and Kustomize.
+I used the official Kubernetes documentation to understand Deployments,<br/>
+Services and Kustomize.
 
-I started with one Deployment and Service. The first version
-contained the GHCR image version directly in the Deployment.
-I then moved the image name and version into a shared release
-overlay to avoid repeating them in multiple environment files.
+I started with one Deployment and Service. The first version contained the GHCR<br/>
+image version directly in the Deployment. I then moved the image name and<br/>
+version into a shared release overlay to avoid repeating them in multiple<br/>
+environment files.
 
-Local and production overlays now reuse the same base configuration.
-Both use one replica because the application currently uses H2.
-Two replicas could have different data without a shared database.
+Local and production overlays now reuse the same base configuration. Both use<br/>
+one replica because the application currently uses H2. Two replicas could have<br/>
+different data without a shared database.
 
-I kept port 8080, the non-root user, security restrictions and
-health endpoints in the base because they are common application
-requirements.
+I kept port 8080, the non-root user, security restrictions and health endpoints<br/>
+in the base because they are common application requirements.
 
 **Verification:**
 
@@ -661,21 +609,92 @@ requirements.
 
 **Reflection:**
 
-I learned that Kustomize does not replace variables inside the
-original YAML files. Instead, it combines a shared base with
-environment-specific changes to produce a final manifest.
+I learned that Kustomize does not replace variables inside the original YAML<br/>
+files. Instead, it combines a shared base with environment-specific changes to<br/>
+produce a final manifest.
 
-This avoids copying entire Deployment files when only a few
-settings need to change.
+This avoids copying entire Deployment files when only a few settings need to<br/>
+change.
 
-The next step is to validate the workflow in GitHub Actions and
-test the application in a real Kubernetes cluster. I have not
-yet verified deployment, networking, or application health in
-Kubernetes.
+At that stage I had verified only generated manifests. Later on 19 November, I<br/>
+deployed the published image into Docker Desktop Kubernetes. The rollout, Pod<br/>
+readiness, health and REST API passed. However, the frontend returned HTTP 404;<br/>
+I investigated this in Entry 017. A corrected release and rollback test are<br/>
+still pending.
 
 **References:**
 
 - https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/
 - https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 - https://kubernetes.io/docs/concepts/services-networking/service/
-- https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+- https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/
+
+#### Entry 017 - Docker Frontend Packaging Issue
+
+**Date:** 19 November 2026
+
+**Objective:** Find out why the frontend was missing from the first Kubernetes<br/>
+deployment and prevent the same issue in later releases.
+
+The Kubernetes Pod started and became Ready. The health endpoint and REST API<br/>
+worked, but the frontend returned HTTP 404. This showed that a successful<br/>
+deployment did not mean the whole application was working.
+
+I checked the source files, local Maven JAR, Dockerfile and `.dockerignore`. A<br/>
+fresh Maven build included `index.html`, `styles.css` and `app.js`. The problem<br/>
+was the Docker build context: `.dockerignore` excluded<br/>
+`src/main/resources/static`, so those files were missing from the published<br/>
+`v0.1.1` image.
+
+I removed the incorrect exclusions, rebuilt the image locally and added four<br/>
+frontend HTTP checks to the existing Docker smoke test. The checks run against<br/>
+the actual container, after the health and API checks.
+
+**Local verification:**
+
+- Maven build passed all nine tests and included the frontend files.
+- The corrected Docker image built successfully.
+- The secure container smoke test passed, including health, REST API and
+  all four frontend URLs (HTTP 200).
+- The old `v0.1.1` image passed health and API checks but failed the new
+  frontend check with HTTP 404 and exit code 1, as expected.
+
+**What I learned:**
+
+Playwright verified the frontend before Docker packaging. It could not catch<br/>
+files removed by `.dockerignore` during image creation. Our original container<br/>
+smoke test also checked only health and the API. I learned that tests should<br/>
+cover the **final packaged image**, not just the source application. The<br/>
+negative test was important because it showed that the new check catches the<br/>
+actual missing-frontend problem.
+
+**Deployment evidence:** The README includes cluster, rollout and Docker<br/>
+Desktop dashboard screenshots from the initial `v0.1.1` deployment. They<br/>
+confirm a running Pod, not a working frontend.
+
+**Limitation and next step:** The corrected image has only been tested locally.<br/>
+The new smoke test still needs GitHub Actions verification. A corrected GHCR<br/>
+release and Kubernetes redeployment have not yet been completed. The existing<br/>
+`v0.1.1` release is left unchanged.
+
+### 3. Future Journal Entries
+
+Each subsequent phase will record its objective, implementation, engineering<br/>
+decisions, observed results, evidence, and limitations.
+
+Do not record planned activities as completed work.
+
+### 4. Task 4 Preparation
+
+The reflective report will evaluate tool selection, architecture, engineering<br/>
+trade-offs, the effects of automation, testing and security, and the benefits<br/>
+and limits of collaboration and reproducible delivery.
+
+The report will compare alternatives and justify future improvements using<br/>
+evidence from validated project work.
+
+[pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
+
+[github-dependabot]: https://github.blog/engineering/platform-security/
+
+[reddit-dependencies]: https://www.reddit.com/r/RedditEng/
