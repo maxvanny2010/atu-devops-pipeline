@@ -597,6 +597,40 @@ Kubernetes rollout of the corrected image remains pending.
 
 ![Docker Desktop Kubernetes](evidence/kubernetes-docker-desktop.png)
 
+#### Kubernetes Validation Script Refactoring
+
+The Kubernetes workflow originally contained inline Bash for downloading<br/>
+`kubectl`, verifying its SHA-256 checksum, building Kustomize overlays and<br/>
+checking security settings. I moved this logic into reusable scripts:
+
+- `scripts/k8s/install-kubectl.sh` installs `kubectl` v1.36.1 on the CI runner<br/>
+  and verifies the downloaded binary against its published SHA-256 checksum.
+- `scripts/k8s/validate-manifests.sh` builds the release, local and production<br/>
+  manifests and validates their image, replica count, probes and security<br/>
+  settings.
+- `.github/workflows/kubernetes-validation.yml` now runs these scripts and<br/>
+  includes `scripts/k8s/**` in its path filters.
+
+This keeps workflow orchestration separate from validation logic, as in the<br/>
+release pipeline. The expected image is extracted from the release overlay,<br/>
+so updating the image tag does not require editing the validation script.
+
+Run the validation locally with Git Bash:
+
+```powershell
+& 'C:\Program Files\Git\bin\bash.exe' scripts/k8s/validate-manifests.sh
+```
+
+**Local results (19 November 2026):** Bash syntax PASS for both scripts;<br/>
+`actionlint` PASS; local and production Kustomize validation PASS; all new<br/>
+files within 90 characters per line; staged whitespace check PASS.
+
+The new `install-kubectl.sh` was syntax-checked locally but not executed.<br/>
+The refactored workflow still requires GitHub Actions verification on Ubuntu.
+
+The `.gitattributes` rule `scripts/k8s/*.sh text eol=lf` keeps both Bash files<br/>
+with LF line endings and avoids Windows CRLF problems.
+
 #### Kubernetes References
 
 - [Kubernetes Kustomize documentation][kd]

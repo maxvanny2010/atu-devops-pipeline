@@ -6,12 +6,14 @@ on:
       - master
     paths:
       - "k8s/**"
+      - "scripts/k8s/**"
       - ".github/workflows/kubernetes-validation.yml"
   push:
     branches:
       - master
     paths:
       - "k8s/**"
+      - "scripts/k8s/**"
       - ".github/workflows/kubernetes-validation.yml"
   workflow_dispatch:
 
@@ -29,51 +31,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Install verified kubectl
-        shell: bash
-        run: |
-          set -euo pipefail
-          VERSION=v1.36.1
-          BASE="https://dl.k8s.io/release/${VERSION}/bin/linux/amd64"
-
-          curl --fail --location --retry 3 \
-            --output kubectl "${BASE}/kubectl"
-
-          curl --fail --location --retry 3 \
-            --output kubectl.sha256 "${BASE}/kubectl.sha256"
-
-          echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-          chmod +x kubectl
-          sudo install -m 0755 kubectl /usr/local/bin/kubectl
-
-          kubectl version --client
+        run: bash scripts/k8s/install-kubectl.sh
 
       - name: Validate local and production overlays
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          for environment in local prod; do
-            echo "=== Validating ${environment} ==="
-
-            kubectl kustomize "k8s/overlays/${environment}" \
-              > "${RUNNER_TEMP}/${environment}.yaml"
-
-            manifest="${RUNNER_TEMP}/${environment}.yaml"
-
-            grep -Fq \
-              'ghcr.io/maxvanny2010/atu-devops-pipeline:v0.1.1' \
-              "$manifest"
-
-            grep -Eq '^[[:space:]]*replicas: 1$' "$manifest"
-            grep -Fq 'kind: Deployment' "$manifest"
-            grep -Fq 'kind: Service' "$manifest"
-            grep -Fq 'runAsNonRoot: true' "$manifest"
-            grep -Fq 'readOnlyRootFilesystem: true' "$manifest"
-            grep -Fq 'allowPrivilegeEscalation: false' "$manifest"
-            grep -Fq 'type: RuntimeDefault' "$manifest"
-            grep -Fq 'startupProbe:' "$manifest"
-            grep -Fq 'readinessProbe:' "$manifest"
-            grep -Fq 'livenessProbe:' "$manifest"
-
-            echo "PASS: ${environment}"
-          done
+        run: bash scripts/k8s/validate-manifests.sh

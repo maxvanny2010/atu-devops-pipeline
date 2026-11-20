@@ -1,2 +1,3 @@
 scripts/release/*.sh text eol=lf
 scripts/docker/*.sh text eol=lf
+scripts/k8s/*.sh text eol=lf

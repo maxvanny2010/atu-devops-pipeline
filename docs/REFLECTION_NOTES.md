@@ -677,6 +677,49 @@ The new smoke test still needs GitHub Actions verification. A corrected GHCR<br/
 release and Kubernetes redeployment have not yet been completed. The existing<br/>
 `v0.1.1` release is left unchanged.
 
+#### Entry 018 - Kubernetes Validation Script Refactoring
+
+**Date:** 19 November 2026
+
+**Objective:** Move Kubernetes validation commands out of GitHub Actions YAML<br/>
+so they can be tested locally and maintained in one place.
+
+I noticed that the Kubernetes workflow contained a long inline Bash block.<br/>
+We had already separated workflow orchestration from implementation in the<br/>
+release pipeline, but I had not followed the same approach for Kubernetes.
+
+I created `scripts/k8s/install-kubectl.sh` to download and verify `kubectl`<br/>
+using SHA-256 on the Ubuntu CI runner. I moved Kustomize rendering and manifest<br/>
+checks to `scripts/k8s/validate-manifests.sh`. The workflow now calls these<br/>
+scripts and watches `scripts/k8s/**` for changes.
+
+The validation script reads the expected container image from the rendered<br/>
+release overlay. This avoids hard-coding `v0.1.1` in both configuration and<br/>
+tests. It checks the local and production manifests against the same image.
+
+**Problem found:** My first image-extraction expression expected `image:` as<br/>
+the first YAML field. Kustomize actually generated `- image:`, so the first<br/>
+local run failed. I corrected the `awk` expression and repeated validation.
+
+**Local verification:**
+
+- Both Bash scripts passed `bash -n`.
+- `actionlint` passed for the shorter workflow.
+- Release image extraction succeeded.
+- Local and production overlays both passed validation.
+- The three new or changed files met the 90-character line limit.
+- `git diff --cached --check` passed.
+
+**Reflection:** Smaller workflow files are easier to review, and reusable<br/>
+scripts can be tested without triggering GitHub Actions. I also need to<br/>
+check the actual generated YAML before writing parsing rules. The new Bash<br/>
+scripts need an LF rule in `.gitattributes` to avoid Windows line-ending<br/>
+problems encountered in earlier stages.
+
+**Limitation:** The installer was syntax-checked but has not run on Ubuntu<br/>
+in this revision. GitHub Actions validation is still required before calling<br/>
+the refactored CI workflow verified.
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation, engineering<br/>
