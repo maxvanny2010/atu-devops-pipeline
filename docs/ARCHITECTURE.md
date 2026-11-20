@@ -469,3 +469,15 @@ it accompanies the image in the same artifact. Tag checks can race with
 other registry writers; registry-side immutability or protected releases
 would provide stronger enforcement. Partial publication remains possible
 if GHCR succeeds but GitHub Release creation fails.
+
+### Immutable Image Deployment Design
+
+GitHub Release tags provide human-readable application versions. Kubernetes
+deployments use GHCR manifest digests to reference exact published images.
+
+The release pipeline already captures `PUBLISHED_IMAGE` after a successful
+registry push. The reusable Kustomize updater accepts this full image reference.
+This separates registry publishing from manifest editing and supports testing.
+
+The next stage will connect publishing to a controlled GitHub Pull Request.
+No automatic deployment is implemented by the updater itself.

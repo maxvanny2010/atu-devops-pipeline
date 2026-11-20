@@ -688,3 +688,37 @@ test.
 [dp]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 
 [p]: https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/
+
+### Immutable Kubernetes Image Updates
+
+Kubernetes uses an immutable GHCR image digest rather than a mutable image tag.
+GitHub Release tags remain useful for identifying application versions.
+
+The reusable `scripts/release/update-kustomize-image.sh` accepts a full image
+reference and updates the release overlay. It validates the repository and
+SHA256 digest before changing the file. Repeated updates are safe.
+
+Run offline tests:
+
+```bash
+bash scripts/release/test-kustomize-image.sh
+```
+
+Automated integration with GitHub Actions is planned for the next iteration.
+
+### Release v0.1.2 Evidence
+
+The `v0.1.2` GitHub Actions release workflow passed both verification and
+publishing jobs. GitHub Release records commit `31b3b28` and the published
+container image digest.
+
+![Successful v0.1.2 release workflow](evidence/ghcr-release-v0.1.2-actions.png)
+
+![Published v0.1.2 GitHub Release](evidence/ghcr-release-v0.1.2-details.png)
+
+Local Kubernetes application checks returned HTTP 200 for the frontend,
+HTML, CSS, JavaScript and REST API. The health endpoint returned `UP`.
+These checks confirm that the earlier missing-frontend issue was fixed.
+The screenshot does not independently verify a digest-based rollout.
+
+![Kubernetes v0.1.2 HTTP checks](evidence/kubernetes-v0.1.2-frontend-pass.png)

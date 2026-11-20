@@ -1,4 +1,4 @@
-﻿# Java / Maven
+# Java / Maven
 target/
 *.class
 *.log
@@ -38,3 +38,4 @@ crash.log
 .DS_Store
 Thumbs.db
 .maven-cache/
+.sonar/

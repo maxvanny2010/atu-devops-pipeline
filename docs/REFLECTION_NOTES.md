@@ -720,6 +720,43 @@ problems encountered in earlier stages.
 in this revision. GitHub Actions validation is still required before calling<br/>
 the refactored CI workflow verified.
 
+#### Entry 019 - Immutable Kubernetes Image References
+
+**Date:** 20 November 2026
+
+**Objective:** Remove manual image version editing from Kubernetes releases.
+
+I changed the Kustomize release overlay to use the SHA256 digest of the
+published `v0.1.2` image. A version tag is easy to read but can point to a
+different image later. A digest identifies the exact published image.
+
+I also made a reusable Bash script to update Kustomize. It accepts the full
+image reference, checks the input and supports repeated execution. This avoids
+duplicating version replacement logic in different GitHub Actions workflows.
+
+**Problem:** Windows had `kubectl`, but WSL could not find it. I installed
+the Linux version in WSL to match the Ubuntu CI environment more closely.
+
+**Verified:**
+
+- Linux kubectl v1.36.1 and Kustomize v5.8.1 worked in WSL.
+- Local and production Kubernetes manifest validation passed.
+- The rendered deployment referenced the published SHA256 digest.
+- Offline updater tests passed, including negative cases.
+
+**Release evidence:** The `v0.1.2` GitHub Actions verification and publishing
+jobs passed. GitHub Release records the image digest and source commit.
+Local Kubernetes checks returned HTTP 200 for the frontend, static files and
+REST API. The health endpoint returned `UP`, confirming that the earlier
+frontend packaging problem was fixed. Screenshots are linked in README.
+These checks do not prove that Kubernetes deployed the digest-based manifest.
+
+**Next work:** Connect to GitHub Actions and verify the
+automated release process. No automatic deployment has been implemented.
+
+**Reflection:** Reusing small scripts makes the pipeline easier to test and
+maintain. Digest-based deployments also make releases more reproducible.
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation, engineering<br/>
