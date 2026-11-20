@@ -1,0 +1,37 @@
+name: Kubernetes Manifest Validation
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "k8s/**"
+      - "scripts/k8s/**"
+      - ".github/workflows/kubernetes-validation.yml"
+  push:
+    branches:
+      - master
+    paths:
+      - "k8s/**"
+      - "scripts/k8s/**"
+      - ".github/workflows/kubernetes-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Kubernetes manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Install verified kubectl
+        run: bash scripts/k8s/install-kubectl.sh
+
+      - name: Validate local and production overlays
+        run: bash scripts/k8s/validate-manifests.sh
