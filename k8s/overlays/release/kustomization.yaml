@@ -7,4 +7,4 @@ resources:
 images:
   - name: task-manager
     newName: ghcr.io/maxvanny2010/atu-devops-pipeline
-    newTag: v0.1.1
+    digest: sha256:53ef7bb2e821e74e0ae94f0f37310deffdf98e232e0573360b9aca709dce73f6

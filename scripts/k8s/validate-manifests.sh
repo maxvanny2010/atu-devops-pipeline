@@ -23,7 +23,7 @@ fi
 
 expected_image="${expected_images[0]}"
 
-if [[ "$expected_image" != ghcr.io/*:* ]]; then
+if [[ ! "$expected_image" =~ ^ghcr[.]io/maxvanny2010/atu-devops-pipeline@sha256:[0-9a-f]{64}$ ]]; then
   echo "FAIL: Invalid release image: $expected_image"
   exit 1
 fi
