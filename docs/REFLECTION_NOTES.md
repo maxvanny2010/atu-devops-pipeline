@@ -757,6 +757,64 @@ automated release process. No automatic deployment has been implemented.
 **Reflection:** Reusing small scripts makes the pipeline easier to test and
 maintain. Digest-based deployments also make releases more reproducible.
 
+#### Entry 020 - Automated Digest Release Pull Request
+
+**Date:** 21 November 2026
+
+**Objective:** Propose Kubernetes image updates without editing YAML manually.
+
+I added a release step that reads the published digest and prepares a<br/>
+Kustomize update on a separate branch. It creates a PR for human review and<br/>
+explicitly dispatches Kubernetes manifest validation for that branch.
+
+**Decision:** I reused the existing image updater instead of copying its<br/>
+logic into GitHub Actions. A temporary Git worktree isolates the update.<br/>
+Review, merge and deployment remain manual.
+
+**Problem:** PRs created with `GITHUB_TOKEN` do not normally trigger other<br/>
+PR workflows. I used `workflow_dispatch` to start manifest validation.
+
+**GitHub configuration:** I enabled the repository setting that allows<br/>
+GitHub Actions to create PRs. Default token permissions remain read-only.<br/>
+Additional write permissions are scoped to the publishing job.
+
+**Local verification:** Bash syntax and mocked Git/GitHub CLI tests passed.<br/>
+The real release-to-PR workflow has not run yet. The screenshot documents<br/>
+repository settings, not a successful automated PR.
+
+**Reflection:** Reusing tested scripts kept the workflow smaller and made<br/>
+offline validation possible without publishing an image or creating a PR.
+
+#### Entry 021 - Kubernetes Rollback Verification
+
+**Date:** 21 November 2026
+
+**Objective:** Verify recovery from a failed Kubernetes image update.
+
+I confirmed that the local Deployment was healthy on `v0.1.2`. I changed<br/>
+the image to a nonexistent tag and observed `ErrImagePull`. I then ran<br/>
+`kubectl rollout undo --to-revision=4`, which restored the working image.<br/>
+The Deployment returned to 1/1 Ready at revision 6.
+
+**Verification:** After rollback, `/`, `/index.html`, `/styles.css`,<br/>
+`/app.js`, `/api/tasks` and `/actuator/health` all returned HTTP 200.<br/>
+The health endpoint reported `UP`.
+
+**Problem:** The `last-applied-configuration` annotation still pointed to<br/>
+`v0.1.1`. Imperative rollback does not update this annotation, so I need<br/>
+to check declarative configuration before future `kubectl apply` actions.
+
+**Decision:** I added a read-only post-recovery verification script and<br/>
+offline tests. This avoids repeatedly breaking the cluster merely to<br/>
+verify the recovery checks. The live test was performed manually.
+
+**Reflection:** Pod readiness alone is not enough; I verified the actual<br/>
+frontend, API and health endpoints after recovery. The live cluster still<br/>
+uses the version tag, so digest-based deployment remains unverified.
+
+**Evidence:** `evidence/kubernetes-rollback-http-pass.png` shows the six<br/>
+successful HTTP checks after recovery.
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation, engineering<br/>

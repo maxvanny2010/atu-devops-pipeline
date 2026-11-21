@@ -1,0 +1,39 @@
+name: Kustomize Digest PR Tests
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'scripts/release/create-kustomize-pr.sh'
+      - 'scripts/release/test-create-kustomize-pr.sh'
+      - 'scripts/release/update-kustomize-image.sh'
+      - '.github/workflows/digest-pr-tests.yml'
+  push:
+    branches:
+      - 'feature/**'
+    paths:
+      - 'scripts/release/create-kustomize-pr.sh'
+      - 'scripts/release/test-create-kustomize-pr.sh'
+      - 'scripts/release/update-kustomize-image.sh'
+      - '.github/workflows/digest-pr-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Check Bash syntax
+        run: |
+          bash -n scripts/release/create-kustomize-pr.sh
+          bash -n scripts/release/test-create-kustomize-pr.sh
+      - name: Test updater and PR orchestration offline
+        run: |
+          bash scripts/release/test-kustomize-image.sh
+          bash scripts/release/test-create-kustomize-pr.sh

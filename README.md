@@ -722,3 +722,69 @@ These checks confirm that the earlier missing-frontend issue was fixed.
 The screenshot does not independently verify a digest-based rollout.
 
 ![Kubernetes v0.1.2 HTTP checks](evidence/kubernetes-v0.1.2-frontend-pass.png)
+
+### Automated Digest Release Pull Requests
+
+After a verified GHCR release, GitHub Actions proposes a Kustomize image<br/>
+update. The script reads `PUBLISHED_IMAGE` and creates a PR against the latest<br/>
+`master`. It uses an immutable SHA256 digest instead of editing version tags<br/>
+manually. Kubernetes manifest validation is dispatched for the new branch.<br/>
+The PR requires manual review and merge; it does not deploy the image.
+
+Offline tests use a temporary local Git repository and mocked GitHub CLI<br/>
+commands. No real GitHub PR or release is created during these tests.
+
+```bash
+bash scripts/release/test-create-kustomize-pr.sh
+```
+
+GitHub Actions keeps read-only token permissions by default. The repository<br/>
+setting allows Actions to create pull requests. The release job explicitly<br/>
+grants the permissions required for publishing, PR creation and validation.<br/>
+These permissions do not automatically approve or merge a PR.
+
+![GitHub Actions permissions](evidence/github-actions-workflow-permissions.png)
+
+### Kubernetes Rollback Verification
+
+On 21 November 2026, I tested a failed local Kubernetes update. The<br/>
+Deployment initially ran `v0.1.2` with one Ready replica. I temporarily<br/>
+selected a nonexistent image and observed `ErrImagePull`. I then ran<br/>
+`kubectl rollout undo --to-revision=4`. Kubernetes restored the working<br/>
+`v0.1.2` image and completed the rollout as revision 6.
+
+After recovery, the frontend, static files, REST API and Actuator health<br/>
+endpoint each returned HTTP 200. The health status was `UP`.
+
+The original `last-applied-configuration` annotation still referenced<br/>
+`v0.1.1`. This is a limitation of imperative rollback: inspect the current<br/>
+declarative configuration before a later `kubectl apply`.
+
+A read-only verification script checks the image, Deployment readiness and<br/>
+six HTTP endpoints after a rollback. Start a port-forward in another shell:
+
+```powershell
+kubectl -n default port-forward deployment/task-manager 18080:8080
+```
+
+Then run the verification and its offline mock tests:
+
+```powershell
+powershell -NoProfile -File scripts/k8s/verify-rollback.ps1
+powershell -NoProfile -File scripts/k8s/test-verify-rollback.ps1
+```
+
+The read-only script does not perform a rollout or modify the cluster.
+
+**Rollback evidence:**
+
+![Kubernetes rollback HTTP verification](evidence/kubernetes-rollback-http-pass.png)
+
+**Test scripts:**
+
+- `verify-rollback.ps1` - Read-only post-rollback verification test.
+- `test-verify-rollback.ps1` - Offline tests using mocked Kubernetes
+  and HTTP responses.
+
+These scripts are used for testing and demonstration only.<br/>
+They do not perform rollback or modify Kubernetes resources.
