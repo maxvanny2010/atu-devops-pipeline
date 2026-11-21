@@ -577,3 +577,26 @@ in a scaled production deployment.
 
 Monitoring data is temporary and is lost when the associated Pod<br/>
 and its emptyDir storage are removed.
+
+### Structured Logging Architecture
+
+The application writes ECS JSON logging events to standard output.<br/>
+The container runtime captures these events for Kubernetes logging.
+
+```mermaid
+flowchart LR
+    A[Spring Boot]
+    B[Logback ECS JSON]
+    C[Container stdout]
+    D[Kubernetes logs]
+    E[Operator]
+
+    A --> B --> C --> D --> E
+```
+
+Metrics collection and logging are independent responsibilities.<br/>
+Prometheus collects numerical metrics, while Kubernetes provides<br/>
+access to individual application logging events.
+
+No additional logging service or persistent log storage is deployed.<br/>
+A centralised log collector can be integrated in future work.

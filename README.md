@@ -841,11 +841,11 @@ in the dedicated `monitoring-demo` namespace.
 
 The stack uses the following components:
 
-| Component    | Image                         | Service Port |
-|--------------|-------------------------------|--------------|
-| Task Manager | task-manager:monitoring-local | 8080         |
-| Prometheus   | prom/prometheus:v3.5.5        | 9090         |
-| Grafana      | grafana/grafana:12.3.0        | 3000         |
+| Component    | Image                      | Service Port |
+|--------------|----------------------------|--------------|
+| Task Manager | task-manager:logging-local | 8080         |
+| Prometheus   | prom/prometheus:v3.5.5     | 9090         |
+| Grafana      | grafana/grafana:12.3.0     | 3000         |
 
 Prometheus scrapes application metrics every 15 seconds.<br/>
 Grafana provisions its Prometheus data source and dashboard from files.
@@ -857,7 +857,7 @@ All monitoring configuration is stored in Git.
 Build the local application image and deploy the monitoring overlay:
 
 ```powershell
-docker build -t task-manager:monitoring-local .
+docker build -t task-manager:logging-local .
 kubectl --context docker-desktop apply -k k8s/overlays/monitoring-demo
 ```
 
@@ -932,3 +932,49 @@ https://grafana.com/docs/grafana/latest/administration/provisioning/
 
 [monitoring-kubernetes-services]:
 https://kubernetes.io/docs/concepts/services-networking/service/
+
+### Structured Application Logging
+
+Spring Boot produces structured JSON console logs using<br/>
+Elastic Common Schema (ECS), without additional dependencies.
+
+```properties
+logging.structured.format.console=ecs
+spring.main.banner-mode=off
+```
+
+Each logging event is represented by a single JSON object<br/>
+containing a timestamp, log level, service name and message.
+
+The StructuredLoggingTest integration test parses a real<br/>
+logging event and validates the required ECS fields.
+
+#### Kubernetes Logging Verification
+
+```powershell
+kubectl -n monitoring-demo logs deployment/task-manager
+```
+
+Format an individual JSON event for human-readable inspection:
+
+```powershell
+kubectl -n monitoring-demo logs deployment/task-manager |
+    Where-Object { $_.StartsWith('{') } |
+    Select-Object -Last 1 |
+    ConvertFrom-Json |
+    ConvertTo-Json -Depth 20
+```
+
+**Evidence:**
+
+![Structured logging](evidence/kubernetes-structured-logging.png)
+
+Centralised log aggregation and long-term retention<br/>
+are outside the scope of the current implementation.
+
+**Reference:**
+
+[Spring Boot Structured Logging][structured-logging]
+
+[structured-logging]:
+https://docs.spring.io/spring-boot/reference/features/logging.html

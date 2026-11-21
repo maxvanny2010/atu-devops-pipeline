@@ -855,7 +855,6 @@ live verification of the updated Kubernetes probes are pending.
 - [Spring Boot Integration Testing][entry022-tests]
 - [Kubernetes Health Probes][entry022-probes]
 
-
 #### Entry 023 - Prometheus and Grafana Monitoring
 
 **Date:** 21 November 2026
@@ -906,6 +905,40 @@ Persistent storage, authentication and alerting remain future work.
 - [Grafana Provisioning][entry023-grafana]
 - [Kubernetes Services][entry023-services]
 
+#### Entry 024 - Structured Application Logging
+
+**Date:** 21 November 2026
+
+**Objective:** Make application logging machine-readable.
+
+**Research:** I reviewed Spring Boot structured logging documentation<br/>
+and its built-in support for Elastic Common Schema.
+
+**Decision:** I selected ECS JSON console logging rather than deploying<br/>
+another infrastructure component for this demonstration.
+
+**Implementation:** I enabled ECS logging, disabled the Spring banner<br/>
+and added an integration test for the generated JSON structure.
+
+**Verification:** The existing 13 tests passed before the new test<br/>
+was added. The individual StructuredLoggingTest also passed.<br/>
+I rebuilt the Docker image and successfully updated the application<br/>
+in the monitoring-demo namespace.
+
+**Reflection:** I initially considered multiline JSON more readable.<br/>
+I learned that one JSON object per line allows automated processing<br/>
+without requiring multiline event reconstruction.
+
+**Limitation:** Kubernetes provides access to container logs,<br/>
+but centralised indexing, searching and retention remain future work.
+
+**Evidence:**
+
+- `evidence/kubernetes-structured-logging.png`
+
+**Reference:**
+
+- [Spring Boot Structured Logging][entry024-logging]
 
 ### 3. Future Journal Entries
 
@@ -936,10 +969,13 @@ evidence from validated project work.
 [entry022-probes]: https://kubernetes.io/docs/concepts/workloads/pods/probes/
 
 [entry023-prometheus]:
-  https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+https://prometheus.io/docs/prometheus/latest/configuration/configuration/
 
 [entry023-grafana]:
-  https://grafana.com/docs/grafana/latest/administration/provisioning/
+https://grafana.com/docs/grafana/latest/administration/provisioning/
 
 [entry023-services]:
-  https://kubernetes.io/docs/concepts/services-networking/service/
+https://kubernetes.io/docs/concepts/services-networking/service/
+
+[entry024-logging]:
+https://docs.spring.io/spring-boot/reference/features/logging.html
