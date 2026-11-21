@@ -538,3 +538,42 @@ not be exposed publicly without appropriate access controls.
 
 Four real HTTP integration tests verify health and metrics export.<br/>
 Prometheus collection and Grafana visualisation remain pending.
+
+### Kubernetes Monitoring Architecture
+
+The monitoring-demo overlay combines the application base<br/>
+with independent Prometheus and Grafana resources.
+
+```mermaid
+flowchart LR
+    A[Task Manager Pod]
+    B[Task Manager Service]
+    C[Prometheus Pod]
+    D[Prometheus Service]
+    E[Grafana Pod]
+    F[Grafana Service]
+    G[Local Browser]
+
+    G -->|Port forward| F
+    F --> E
+    E -->|PromQL queries| D
+    D --> C
+    C -->|HTTP scrape| B
+    B --> A
+```
+
+Prometheus collects metrics through the Task Manager ClusterIP Service.<br/>
+Grafana queries Prometheus through its internal Service address.
+
+Kustomize generates ConfigMaps for Prometheus configuration,<br/>
+Grafana data source provisioning and dashboard provisioning.
+
+Each application has an independent Deployment and Service.<br/>
+This separates application execution, metrics storage and visualisation.
+
+The demonstration uses static Service-based scrape configuration.<br/>
+Individual replica discovery would be needed for per-Pod monitoring<br/>
+in a scaled production deployment.
+
+Monitoring data is temporary and is lost when the associated Pod<br/>
+and its emptyDir storage are removed.

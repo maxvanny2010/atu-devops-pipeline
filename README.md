@@ -833,3 +833,102 @@ Live Kubernetes monitoring validation remains pending.
 [monitoring-tests]: https://docs.spring.io/spring-boot/4.1/reference/testing/spring-boot-applications.html
 
 [monitoring-probes]: https://kubernetes.io/docs/concepts/workloads/pods/probes/
+
+### Prometheus and Grafana Monitoring Stack
+
+Prometheus and Grafana run as independent Kubernetes Deployments<br/>
+in the dedicated `monitoring-demo` namespace.
+
+The stack uses the following components:
+
+| Component    | Image                         | Service Port |
+|--------------|-------------------------------|--------------|
+| Task Manager | task-manager:monitoring-local | 8080         |
+| Prometheus   | prom/prometheus:v3.5.5        | 9090         |
+| Grafana      | grafana/grafana:12.3.0        | 3000         |
+
+Prometheus scrapes application metrics every 15 seconds.<br/>
+Grafana provisions its Prometheus data source and dashboard from files.
+
+All monitoring configuration is stored in Git.
+
+#### Monitoring Deployment
+
+Build the local application image and deploy the monitoring overlay:
+
+```powershell
+docker build -t task-manager:monitoring-local .
+kubectl --context docker-desktop apply -k k8s/overlays/monitoring-demo
+```
+
+Access the applications using separate terminals:
+
+```powershell
+kubectl -n monitoring-demo port-forward svc/task-manager 18080:8080
+kubectl -n monitoring-demo port-forward svc/prometheus 19090:9090
+kubectl -n monitoring-demo port-forward svc/grafana 13000:3000
+```
+
+| Interface          | Local URL                                 |
+|--------------------|-------------------------------------------|
+| Task Manager       | http://localhost:18080                    |
+| Prometheus Targets | http://localhost:19090/targets            |
+| Grafana Dashboard  | http://localhost:13000/d/atu-task-manager |
+
+#### Dashboard Metrics
+
+- Application scrape availability.
+- Application CPU usage.
+- JVM heap memory.
+- HTTP request rate.
+- Average HTTP response time.
+- Application error log events.
+
+#### Monitoring Verification and Evidence
+
+- [x] Monitoring overlay passed Kustomize validation.
+- [x] Prometheus configuration passed promtool validation.
+- [x] All three Kubernetes Deployments successfully rolled out.
+- [x] All three Pods were Running with zero restarts after deployment.
+- [x] Original application remained available in the default namespace.
+
+**Kubernetes monitoring stack:**
+
+![Kubernetes monitoring stack](evidence/kubernetes-monitoring-stack.png)
+
+**Prometheus targets:**
+
+![Prometheus targets](evidence/prometheus-targets-up.png)
+
+**Grafana application dashboard:**
+
+![Grafana dashboard](evidence/grafana-task-manager-dashboard.png)
+
+#### Monitoring Security and Limitations
+
+Prometheus and Grafana run as non-root containers with read-only<br/>
+root filesystems, dropped capabilities and resource limits.
+
+Services use ClusterIP and local port forwarding.<br/>
+Grafana anonymous Viewer access is restricted to the demonstration use case.
+
+Monitoring storage uses temporary emptyDir volumes.<br/>
+Production requires persistent storage and appropriate access controls.
+
+This overlay uses a local application image and is separate from<br/>
+the published GHCR release configuration.
+
+**References:**
+
+- [Prometheus Configuration][monitoring-prometheus-config]
+- [Grafana Provisioning][monitoring-grafana-provisioning]
+- [Kubernetes Services][monitoring-kubernetes-services]
+
+[monitoring-prometheus-config]:
+https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+
+[monitoring-grafana-provisioning]:
+https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+[monitoring-kubernetes-services]:
+https://kubernetes.io/docs/concepts/services-networking/service/

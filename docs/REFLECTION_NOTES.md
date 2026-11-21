@@ -856,6 +856,57 @@ live verification of the updated Kubernetes probes are pending.
 - [Kubernetes Health Probes][entry022-probes]
 
 
+#### Entry 023 - Prometheus and Grafana Monitoring
+
+**Date:** 21 November 2026
+
+**Objective:** Deploy a reproducible application monitoring stack.
+
+**Implementation:** I created independent Prometheus and Grafana<br/>
+Deployments, ClusterIP Services and configuration files.<br/>
+I used a separate Kubernetes namespace for the monitoring demonstration.
+
+**Research:** Prometheus documentation explained scrape configuration.<br/>
+Grafana provisioning documentation helped me automate the data source<br/>
+and dashboard setup. Kubernetes documentation explained stable<br/>
+Service addresses and communication between workloads.
+
+**Decision:** I selected Kubernetes and Kustomize instead of adding<br/>
+a separate Docker Compose deployment at this stage.<br/>
+This extends the existing deployment architecture and allows<br/>
+monitoring configuration to remain version controlled.
+
+**Problem:** The first deployment attempt failed because the monitoring<br/>
+overlay directory had not yet been created.<br/>
+I checked the working tree, confirmed the local image was available,<br/>
+created the missing configuration and repeated the deployment.
+
+**Verification:** Kustomize and promtool validation succeeded.<br/>
+All three Deployments became Ready with zero Pod restarts.<br/>
+The original application remained available in the default namespace.
+
+**Reflection:** I learned that exporting metrics, collecting metrics<br/>
+and visualising metrics are separate responsibilities.<br/>
+Provisioning the dashboard from Git makes the deployment reproducible<br/>
+and avoids dependence on manual Grafana configuration.
+
+**Limitation:** Temporary storage and anonymous Viewer access are<br/>
+appropriate for this local demonstration but not for production.<br/>
+Persistent storage, authentication and alerting remain future work.
+
+**Evidence:**
+
+- `evidence/kubernetes-monitoring-stack.png`
+- `evidence/prometheus-targets-up.png`
+- `evidence/grafana-task-manager-dashboard.png`
+
+**References:**
+
+- [Prometheus Configuration][entry023-prometheus]
+- [Grafana Provisioning][entry023-grafana]
+- [Kubernetes Services][entry023-services]
+
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation, engineering<br/>
@@ -883,3 +934,12 @@ evidence from validated project work.
 [entry022-tests]: https://docs.spring.io/spring-boot/4.1/reference/testing/spring-boot-applications.html
 
 [entry022-probes]: https://kubernetes.io/docs/concepts/workloads/pods/probes/
+
+[entry023-prometheus]:
+  https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+
+[entry023-grafana]:
+  https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+[entry023-services]:
+  https://kubernetes.io/docs/concepts/services-networking/service/
