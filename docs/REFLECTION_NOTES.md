@@ -940,6 +940,175 @@ but centralised indexing, searching and retention remain future work.
 
 - [Spring Boot Structured Logging][entry024-logging]
 
+#### Entry 025 - Final Release and Deployment
+
+**Date:** 21 November 2026
+
+**Objective:** Validate the complete release and deployment lifecycle.
+
+**Implementation:** I created the v0.2.0 release tag from master.<br/>
+The release pipeline verified and published the application image<br/>
+and automatically created the Kubernetes digest update Pull Request.
+
+**Verification:** Pull Request #18 updated the release overlay.<br/>
+After merging it, I deployed the published image using its<br/>
+immutable SHA256 digest.
+
+All six application endpoints returned HTTP 200.<br/>
+Health, liveness and readiness reported UP.<br/>
+Prometheus metrics and structured application logs were available.
+
+**Problem:** The initial PowerShell health verification reported<br/>
+an unexpected result despite the application being healthy.
+
+**Resolution:** I inspected the raw HTTP responses using curl<br/>
+and corrected the verification procedure.<br/>
+The subsequent checks confirmed that the application was healthy.
+
+**Reflection:** This demonstrated the importance of distinguishing<br/>
+an application failure from a failure in the verification tool.<br/>
+It also confirmed that an automated release can preserve a clear<br/>
+relationship between source code, image and deployment configuration.
+
+**Evidence:**
+
+- `evidence/release-v0.2.0.png`
+- `evidence/final-release-automated-digest-pr.png`
+- `evidence/final-release-verification.png`
+
+**Release:**
+
+https://github.com/maxvanny2010/atu-devops-pipeline/releases/tag/v0.2.0
+
+#### Entry 026 - Final Critical Reflection
+
+**Date:** 21 November 2026
+
+**Engineering Objectives**
+
+The objective of this project was not simply to develop<br/>
+a working Task Manager application, but to understand how<br/>
+software can be continuously tested, secured, released,<br/>
+deployed and monitored.
+
+I developed the project incrementally, using feature branches,<br/>
+Pull Requests, automated verification and documented decisions.
+
+This approach allowed me to separate engineering responsibilities<br/>
+and validate individual changes before integrating them.
+
+**DevOps and Automation**
+
+The most important outcome was the complete delivery lifecycle.<br/>
+GitHub Actions reduced the number of manual verification steps<br/>
+and made the release process more consistent and repeatable.
+
+The automated digest Pull Request demonstrated how application<br/>
+delivery and infrastructure configuration can be connected.
+
+However, I retained explicit approval before merging deployment<br/>
+configuration and deploying the final image.
+
+This provides a balance between automation and operational control.
+
+**Testing and Security**
+
+Unit tests, integration tests, browser tests and coverage checks<br/>
+provided different levels of confidence in the application.
+
+SonarQube, Trivy and container runtime security controls<br/>
+introduced security considerations into the delivery process.
+
+I learned that passing a security scan does not prove<br/>
+that an application is completely secure.
+
+Similarly, code coverage is a useful quality indicator,<br/>
+but it does not guarantee that every important behaviour<br/>
+or failure scenario has been tested.
+
+**Infrastructure and Deployment**
+
+Docker provided a consistent application packaging mechanism.<br/>
+Kubernetes introduced declarative deployment, health probes,<br/>
+service discovery and deployment recovery.
+
+Kustomize allowed me to manage different deployment configurations<br/>
+without duplicating the complete application manifests.
+
+Using immutable image digests improved deployment traceability<br/>
+and reduced the risk of deploying an unexpected image.
+
+The additional infrastructure also increased complexity.<br/>
+For a small application, Docker Compose would be simpler.<br/>
+Kubernetes was selected to explore deployment automation<br/>
+and operational concepts relevant to this project.
+
+**Monitoring and Logging**
+
+Prometheus and Grafana demonstrated the distinction between<br/>
+collecting metrics and visualising operational information.
+
+Structured ECS logging demonstrated how application events<br/>
+can be represented in a machine-readable format.
+
+I learned that monitoring and logging must be considered<br/>
+as part of application development rather than as an<br/>
+independent activity performed only after deployment.
+
+The current implementation provides basic observability,<br/>
+but it does not provide complete production incident management.
+
+**Problems and Lessons Learned**
+
+Several problems occurred during implementation and validation.<br/>
+These included configuration errors, release verification issues<br/>
+and differences between expected and actual tool behaviour.
+
+I found that inspecting evidence and isolating the cause<br/>
+of a failure was more effective than changing several<br/>
+components at the same time.
+
+Small, independently verified changes made troubleshooting<br/>
+and reviewing the project more manageable.
+
+**Limitations**
+
+The project was deployed on a local Kubernetes environment.<br/>
+It has not been validated under production workloads.
+
+The application uses an in-memory database.<br/>
+Monitoring storage is temporary and centralised logging<br/>
+and production alerting have not been implemented.
+
+Production access controls, persistent storage, disaster recovery<br/>
+and multi-node availability require additional engineering work.
+
+**Future Improvements**
+
+Future work should focus on operational reliability,<br/>
+persistent storage, centralised logging and alerting.
+
+Further security improvements should include production<br/>
+secret management, network policies and access controls.
+
+These improvements should be introduced incrementally,<br/>
+based on actual requirements and measurable outcomes.
+
+**Conclusion**
+
+The final release demonstrates a working DevOps lifecycle<br/>
+that connects development, testing, security, release automation,<br/>
+deployment and operational verification.
+
+The main learning outcome was understanding how these<br/>
+practices work together as an engineering process.
+
+The project also reinforced the importance of reproducibility,<br/>
+traceability, evidence-based decisions and critical evaluation.
+
+The implementation achieves its educational objectives<br/>
+while recognising its current operational limitations.
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation, engineering<br/>

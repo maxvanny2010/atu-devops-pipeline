@@ -600,3 +600,35 @@ access to individual application logging events.
 
 No additional logging service or persistent log storage is deployed.<br/>
 A centralised log collector can be integrated in future work.
+
+## Final Release Lifecycle
+
+Release v0.2.0 validated the complete automated release process.
+
+The release pipeline publishes the verified image and proposes<br/>
+an immutable digest update through a Pull Request.
+
+Deployment approval and application of Kubernetes manifests<br/>
+remain explicit operator-controlled steps.
+
+The final GHCR image was deployed in the default namespace.<br/>
+All six application endpoints returned HTTP 200,<br/>
+including health probes and Prometheus metrics.
+
+The monitoring-demo namespace remains separate and contains<br/>
+Task Manager, Prometheus and Grafana.
+
+The final implementation demonstrates automated delivery,<br/>
+reproducible deployment and basic application observability.
+
+### Remaining Production Considerations
+
+- Persistent application and monitoring storage.
+- Centralised log collection and retention.
+- Authentication and access control for monitoring.
+- Alerting and incident response procedures.
+- Multi-node infrastructure and availability testing.
+- Production secret management and network policies.
+
+These are future engineering improvements rather than<br/>
+implemented or validated production capabilities.

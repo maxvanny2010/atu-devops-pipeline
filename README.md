@@ -978,3 +978,83 @@ are outside the scope of the current implementation.
 
 [structured-logging]:
 https://docs.spring.io/spring-boot/reference/features/logging.html
+
+## Final Release v0.2.0
+
+The final application release includes automated testing,<br/>
+container security, Kubernetes deployment, monitoring<br/>
+and structured application logging.
+
+| Item                 | Result                    |
+|----------------------|---------------------------|
+| Release              | v0.2.0                    |
+| Release date         | 21 November 2026          |
+| Release commit       | 159b501                   |
+| Observability PR     | #17                       |
+| Automated digest PR  | #18                       |
+| Digest update commit | 09c3156                   |
+| Deployment           | Docker Desktop Kubernetes |
+| Release status       | Verified                  |
+
+**Published image:**
+
+```text
+ghcr.io/maxvanny2010/atu-devops-pipeline:v0.2.0
+```
+
+**Immutable image digest:**
+
+```text
+sha256:6588aa33530795c57fced338e012d500d62b57e474d86376edabfc38ed2f2512
+```
+
+The release pipeline verified the application before publishing<br/>
+the Docker image to GitHub Container Registry.
+
+The automated release process created Pull Request #18<br/>
+to update the immutable image digest in the release overlay.
+
+### Final Verification
+
+- [x] Release verification pipeline completed.
+- [x] GitHub Release and GHCR image published.
+- [x] Automated digest Pull Request created and merged.
+- [x] Kubernetes deployment completed using the new digest.
+- [x] Application UI and REST API returned HTTP 200.
+- [x] Health, liveness and readiness returned UP.
+- [x] Prometheus endpoint exposed JVM metrics.
+- [x] Structured ECS JSON logs were observed.
+- [x] New application Pod was Running with zero restarts.
+
+### Final Release Evidence
+
+**GitHub Release:**
+
+![Final release](evidence/release-v0.2.0.png)
+
+**Automated digest Pull Request:**
+
+![Automated digest PR](evidence/final-release-automated-digest-pr.png)
+
+**Final application verification:**
+
+![Final verification](evidence/final-release-verification.png)
+
+### Project Outcomes
+
+The project demonstrates an end-to-end DevOps delivery lifecycle<br/>
+from source code through testing, security validation, release<br/>
+publication, deployment and operational verification.
+
+The implementation is a local educational demonstration.<br/>
+Production infrastructure and operational requirements<br/>
+are discussed in the architecture and reflection documents.
+
+**Project documentation:**
+
+- [System Architecture](docs/ARCHITECTURE.md)
+- [Reflection Notes](docs/REFLECTION_NOTES.md)
+
+**Final release:**
+
+https://github.com/maxvanny2010/atu-devops-pipeline/releases/tag/v0.2.0
