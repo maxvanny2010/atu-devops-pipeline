@@ -509,3 +509,32 @@ imperative rollback. Future `kubectl apply` operations must use the<br/>
 reviewed declarative manifest and account for the saved annotation.<br/>
 The deployment currently uses the `v0.1.2` tag; a digest-based rollout<br/>
 has not yet been verified in the live cluster.
+
+### Application Metrics and Health Monitoring
+
+The application uses Spring Boot Actuator and Micrometer<br/>
+with the Prometheus registry.
+
+The metrics collection flow is:
+
+```mermaid
+flowchart LR
+    A[Spring Boot] --> B[Micrometer]
+    B --> C[Actuator Prometheus Endpoint]
+    D[Prometheus - planned] -->|HTTP scrape| C
+    E[Grafana - planned] -->|Query| D
+```
+
+Application health is separated into liveness and readiness states.<br/>
+Kubernetes uses these states to evaluate container health and readiness.
+
+The probe timeout is five seconds to tolerate slower local responses.
+
+Only health and Prometheus endpoints are exposed through Actuator.<br/>
+Detailed health information is disabled.
+
+Prometheus metrics may contain operational information and should<br/>
+not be exposed publicly without appropriate access controls.
+
+Four real HTTP integration tests verify health and metrics export.<br/>
+Prometheus collection and Grafana visualisation remain pending.

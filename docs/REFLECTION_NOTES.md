@@ -815,6 +815,47 @@ uses the version tag, so digest-based deployment remains unverified.
 **Evidence:** `evidence/kubernetes-rollback-http-pass.png` shows the six<br/>
 successful HTTP checks after recovery.
 
+#### Entry 022 - Application Monitoring and Metrics
+
+**Date:** 21 November 2026
+
+**Objective:** Introduce measurable application health and performance.
+
+**Implementation:** I added Micrometer Prometheus Registry and<br/>
+configured Actuator to expose health and Prometheus metrics.<br/>
+I also separated Kubernetes liveness and readiness checks and<br/>
+increased probe timeouts to five seconds.
+
+**Research:** Spring Boot documentation explained the available<br/>
+metrics and registry configuration. Kubernetes documentation<br/>
+helped me understand the different responsibilities of probes.
+
+**Problem:** Prometheus worked in the running application but<br/>
+returned HTTP 404 during integration testing.
+
+**Decision:** I consulted the Spring Boot testing documentation<br/>
+and added `@AutoConfigureMetrics` to enable metrics export<br/>
+in the integration test environment.
+
+**Verification:** All four monitoring tests and all nine existing<br/>
+tests passed. Local HTTP checks confirmed health and metrics export.
+
+**Reflection:** I learned that application availability and<br/>
+application performance require different measurements.<br/>
+Using Micrometer avoids implementing custom metrics collection.<br/>
+I also learned that test auto-configuration can differ from<br/>
+the configuration of a running application.
+
+**Limitation:** Prometheus collection, Grafana dashboards and<br/>
+live verification of the updated Kubernetes probes are pending.
+
+**References:**
+
+- [Spring Boot Metrics][entry022-metrics]
+- [Spring Boot Integration Testing][entry022-tests]
+- [Kubernetes Health Probes][entry022-probes]
+
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation, engineering<br/>
@@ -836,3 +877,9 @@ evidence from validated project work.
 [github-dependabot]: https://github.blog/engineering/platform-security/
 
 [reddit-dependencies]: https://www.reddit.com/r/RedditEng/
+
+[entry022-metrics]: https://docs.spring.io/spring-boot/reference/actuator/metrics.html
+
+[entry022-tests]: https://docs.spring.io/spring-boot/4.1/reference/testing/spring-boot-applications.html
+
+[entry022-probes]: https://kubernetes.io/docs/concepts/workloads/pods/probes/

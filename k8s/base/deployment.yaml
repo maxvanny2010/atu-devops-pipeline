@@ -44,20 +44,23 @@ spec:
               memory: 768Mi
           startupProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/liveness
               port: http
+            timeoutSeconds: 5
             periodSeconds: 5
             failureThreshold: 30
           readinessProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/readiness
               port: http
+            timeoutSeconds: 5
             periodSeconds: 10
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/liveness
               port: http
+            timeoutSeconds: 5
             periodSeconds: 20
             failureThreshold: 3
           volumeMounts:

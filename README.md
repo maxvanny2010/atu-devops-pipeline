@@ -788,3 +788,48 @@ The read-only script does not perform a rollout or modify the cluster.
 
 These scripts are used for testing and demonstration only.<br/>
 They do not perform rollback or modify Kubernetes resources.
+
+### Application Monitoring and Prometheus Metrics
+
+Spring Boot Actuator and Micrometer provide application metrics<br/>
+through the `/actuator/prometheus` endpoint.
+
+| Endpoint                     | Purpose                    |
+|------------------------------|----------------------------|
+| `/actuator/health`           | Overall application health |
+| `/actuator/health/liveness`  | Application liveness       |
+| `/actuator/health/readiness` | Application readiness      |
+| `/actuator/prometheus`       | Prometheus metrics export  |
+
+The exported metrics include JVM memory, threads, CPU usage,<br/>
+HTTP requests, database connections and Logback events.
+
+All metrics include the `application=task-manager` label.
+
+Kubernetes startup and liveness probes use the liveness endpoint.<br/>
+The readiness probe uses the readiness endpoint.<br/>
+All three probe timeouts were increased from one to five seconds.
+
+**Verification:**
+
+- [x] Local Actuator endpoints returned HTTP 200.
+- [x] Health, liveness and readiness reported UP.
+- [x] Prometheus metrics and application label verified.
+- [x] Four monitoring integration tests passed.
+- [x] All 13 JUnit tests passed.
+- [x] Local, production and release Kustomize configurations validated.
+
+The updated Kubernetes probes require a compatible application image.<br/>
+Live Kubernetes monitoring validation remains pending.
+
+**References:**
+
+- [Spring Boot Metrics][monitoring-metrics]
+- [Spring Boot Integration Testing][monitoring-tests]
+- [Kubernetes Health Probes][monitoring-probes]
+
+[monitoring-metrics]: https://docs.spring.io/spring-boot/reference/actuator/metrics.html
+
+[monitoring-tests]: https://docs.spring.io/spring-boot/4.1/reference/testing/spring-boot-applications.html
+
+[monitoring-probes]: https://kubernetes.io/docs/concepts/workloads/pods/probes/
