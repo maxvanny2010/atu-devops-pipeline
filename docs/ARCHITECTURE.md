@@ -509,3 +509,94 @@ imperative rollback. Future `kubectl apply` operations must use the<br/>
 reviewed declarative manifest and account for the saved annotation.<br/>
 The deployment currently uses the `v0.1.2` tag; a digest-based rollout<br/>
 has not yet been verified in the live cluster.
+
+### Application Metrics and Health Monitoring
+
+The application uses Spring Boot Actuator and Micrometer<br/>
+with the Prometheus registry.
+
+The metrics collection flow is:
+
+```mermaid
+flowchart LR
+    A[Spring Boot] --> B[Micrometer]
+    B --> C[Actuator Prometheus Endpoint]
+    D[Prometheus - planned] -->|HTTP scrape| C
+    E[Grafana - planned] -->|Query| D
+```
+
+Application health is separated into liveness and readiness states.<br/>
+Kubernetes uses these states to evaluate container health and readiness.
+
+The probe timeout is five seconds to tolerate slower local responses.
+
+Only health and Prometheus endpoints are exposed through Actuator.<br/>
+Detailed health information is disabled.
+
+Prometheus metrics may contain operational information and should<br/>
+not be exposed publicly without appropriate access controls.
+
+Four real HTTP integration tests verify health and metrics export.<br/>
+Prometheus collection and Grafana visualisation remain pending.
+
+### Kubernetes Monitoring Architecture
+
+The monitoring-demo overlay combines the application base<br/>
+with independent Prometheus and Grafana resources.
+
+```mermaid
+flowchart LR
+    A[Task Manager Pod]
+    B[Task Manager Service]
+    C[Prometheus Pod]
+    D[Prometheus Service]
+    E[Grafana Pod]
+    F[Grafana Service]
+    G[Local Browser]
+
+    G -->|Port forward| F
+    F --> E
+    E -->|PromQL queries| D
+    D --> C
+    C -->|HTTP scrape| B
+    B --> A
+```
+
+Prometheus collects metrics through the Task Manager ClusterIP Service.<br/>
+Grafana queries Prometheus through its internal Service address.
+
+Kustomize generates ConfigMaps for Prometheus configuration,<br/>
+Grafana data source provisioning and dashboard provisioning.
+
+Each application has an independent Deployment and Service.<br/>
+This separates application execution, metrics storage and visualisation.
+
+The demonstration uses static Service-based scrape configuration.<br/>
+Individual replica discovery would be needed for per-Pod monitoring<br/>
+in a scaled production deployment.
+
+Monitoring data is temporary and is lost when the associated Pod<br/>
+and its emptyDir storage are removed.
+
+### Structured Logging Architecture
+
+The application writes ECS JSON logging events to standard output.<br/>
+The container runtime captures these events for Kubernetes logging.
+
+```mermaid
+flowchart LR
+    A[Spring Boot]
+    B[Logback ECS JSON]
+    C[Container stdout]
+    D[Kubernetes logs]
+    E[Operator]
+
+    A --> B --> C --> D --> E
+```
+
+Metrics collection and logging are independent responsibilities.<br/>
+Prometheus collects numerical metrics, while Kubernetes provides<br/>
+access to individual application logging events.
+
+No additional logging service or persistent log storage is deployed.<br/>
+A centralised log collector can be integrated in future work.

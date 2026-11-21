@@ -815,6 +815,131 @@ uses the version tag, so digest-based deployment remains unverified.
 **Evidence:** `evidence/kubernetes-rollback-http-pass.png` shows the six<br/>
 successful HTTP checks after recovery.
 
+#### Entry 022 - Application Monitoring and Metrics
+
+**Date:** 21 November 2026
+
+**Objective:** Introduce measurable application health and performance.
+
+**Implementation:** I added Micrometer Prometheus Registry and<br/>
+configured Actuator to expose health and Prometheus metrics.<br/>
+I also separated Kubernetes liveness and readiness checks and<br/>
+increased probe timeouts to five seconds.
+
+**Research:** Spring Boot documentation explained the available<br/>
+metrics and registry configuration. Kubernetes documentation<br/>
+helped me understand the different responsibilities of probes.
+
+**Problem:** Prometheus worked in the running application but<br/>
+returned HTTP 404 during integration testing.
+
+**Decision:** I consulted the Spring Boot testing documentation<br/>
+and added `@AutoConfigureMetrics` to enable metrics export<br/>
+in the integration test environment.
+
+**Verification:** All four monitoring tests and all nine existing<br/>
+tests passed. Local HTTP checks confirmed health and metrics export.
+
+**Reflection:** I learned that application availability and<br/>
+application performance require different measurements.<br/>
+Using Micrometer avoids implementing custom metrics collection.<br/>
+I also learned that test auto-configuration can differ from<br/>
+the configuration of a running application.
+
+**Limitation:** Prometheus collection, Grafana dashboards and<br/>
+live verification of the updated Kubernetes probes are pending.
+
+**References:**
+
+- [Spring Boot Metrics][entry022-metrics]
+- [Spring Boot Integration Testing][entry022-tests]
+- [Kubernetes Health Probes][entry022-probes]
+
+#### Entry 023 - Prometheus and Grafana Monitoring
+
+**Date:** 21 November 2026
+
+**Objective:** Deploy a reproducible application monitoring stack.
+
+**Implementation:** I created independent Prometheus and Grafana<br/>
+Deployments, ClusterIP Services and configuration files.<br/>
+I used a separate Kubernetes namespace for the monitoring demonstration.
+
+**Research:** Prometheus documentation explained scrape configuration.<br/>
+Grafana provisioning documentation helped me automate the data source<br/>
+and dashboard setup. Kubernetes documentation explained stable<br/>
+Service addresses and communication between workloads.
+
+**Decision:** I selected Kubernetes and Kustomize instead of adding<br/>
+a separate Docker Compose deployment at this stage.<br/>
+This extends the existing deployment architecture and allows<br/>
+monitoring configuration to remain version controlled.
+
+**Problem:** The first deployment attempt failed because the monitoring<br/>
+overlay directory had not yet been created.<br/>
+I checked the working tree, confirmed the local image was available,<br/>
+created the missing configuration and repeated the deployment.
+
+**Verification:** Kustomize and promtool validation succeeded.<br/>
+All three Deployments became Ready with zero Pod restarts.<br/>
+The original application remained available in the default namespace.
+
+**Reflection:** I learned that exporting metrics, collecting metrics<br/>
+and visualising metrics are separate responsibilities.<br/>
+Provisioning the dashboard from Git makes the deployment reproducible<br/>
+and avoids dependence on manual Grafana configuration.
+
+**Limitation:** Temporary storage and anonymous Viewer access are<br/>
+appropriate for this local demonstration but not for production.<br/>
+Persistent storage, authentication and alerting remain future work.
+
+**Evidence:**
+
+- `evidence/kubernetes-monitoring-stack.png`
+- `evidence/prometheus-targets-up.png`
+- `evidence/grafana-task-manager-dashboard.png`
+
+**References:**
+
+- [Prometheus Configuration][entry023-prometheus]
+- [Grafana Provisioning][entry023-grafana]
+- [Kubernetes Services][entry023-services]
+
+#### Entry 024 - Structured Application Logging
+
+**Date:** 21 November 2026
+
+**Objective:** Make application logging machine-readable.
+
+**Research:** I reviewed Spring Boot structured logging documentation<br/>
+and its built-in support for Elastic Common Schema.
+
+**Decision:** I selected ECS JSON console logging rather than deploying<br/>
+another infrastructure component for this demonstration.
+
+**Implementation:** I enabled ECS logging, disabled the Spring banner<br/>
+and added an integration test for the generated JSON structure.
+
+**Verification:** The existing 13 tests passed before the new test<br/>
+was added. The individual StructuredLoggingTest also passed.<br/>
+I rebuilt the Docker image and successfully updated the application<br/>
+in the monitoring-demo namespace.
+
+**Reflection:** I initially considered multiline JSON more readable.<br/>
+I learned that one JSON object per line allows automated processing<br/>
+without requiring multiline event reconstruction.
+
+**Limitation:** Kubernetes provides access to container logs,<br/>
+but centralised indexing, searching and retention remain future work.
+
+**Evidence:**
+
+- `evidence/kubernetes-structured-logging.png`
+
+**Reference:**
+
+- [Spring Boot Structured Logging][entry024-logging]
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation, engineering<br/>
@@ -836,3 +961,21 @@ evidence from validated project work.
 [github-dependabot]: https://github.blog/engineering/platform-security/
 
 [reddit-dependencies]: https://www.reddit.com/r/RedditEng/
+
+[entry022-metrics]: https://docs.spring.io/spring-boot/reference/actuator/metrics.html
+
+[entry022-tests]: https://docs.spring.io/spring-boot/4.1/reference/testing/spring-boot-applications.html
+
+[entry022-probes]: https://kubernetes.io/docs/concepts/workloads/pods/probes/
+
+[entry023-prometheus]:
+https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+
+[entry023-grafana]:
+https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+[entry023-services]:
+https://kubernetes.io/docs/concepts/services-networking/service/
+
+[entry024-logging]:
+https://docs.spring.io/spring-boot/reference/features/logging.html

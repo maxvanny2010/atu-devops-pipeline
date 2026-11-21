@@ -788,3 +788,193 @@ The read-only script does not perform a rollout or modify the cluster.
 
 These scripts are used for testing and demonstration only.<br/>
 They do not perform rollback or modify Kubernetes resources.
+
+### Application Monitoring and Prometheus Metrics
+
+Spring Boot Actuator and Micrometer provide application metrics<br/>
+through the `/actuator/prometheus` endpoint.
+
+| Endpoint                     | Purpose                    |
+|------------------------------|----------------------------|
+| `/actuator/health`           | Overall application health |
+| `/actuator/health/liveness`  | Application liveness       |
+| `/actuator/health/readiness` | Application readiness      |
+| `/actuator/prometheus`       | Prometheus metrics export  |
+
+The exported metrics include JVM memory, threads, CPU usage,<br/>
+HTTP requests, database connections and Logback events.
+
+All metrics include the `application=task-manager` label.
+
+Kubernetes startup and liveness probes use the liveness endpoint.<br/>
+The readiness probe uses the readiness endpoint.<br/>
+All three probe timeouts were increased from one to five seconds.
+
+**Verification:**
+
+- [x] Local Actuator endpoints returned HTTP 200.
+- [x] Health, liveness and readiness reported UP.
+- [x] Prometheus metrics and application label verified.
+- [x] Four monitoring integration tests passed.
+- [x] All 13 JUnit tests passed.
+- [x] Local, production and release Kustomize configurations validated.
+
+The updated Kubernetes probes require a compatible application image.<br/>
+Live Kubernetes monitoring validation remains pending.
+
+**References:**
+
+- [Spring Boot Metrics][monitoring-metrics]
+- [Spring Boot Integration Testing][monitoring-tests]
+- [Kubernetes Health Probes][monitoring-probes]
+
+[monitoring-metrics]: https://docs.spring.io/spring-boot/reference/actuator/metrics.html
+
+[monitoring-tests]: https://docs.spring.io/spring-boot/4.1/reference/testing/spring-boot-applications.html
+
+[monitoring-probes]: https://kubernetes.io/docs/concepts/workloads/pods/probes/
+
+### Prometheus and Grafana Monitoring Stack
+
+Prometheus and Grafana run as independent Kubernetes Deployments<br/>
+in the dedicated `monitoring-demo` namespace.
+
+The stack uses the following components:
+
+| Component    | Image                      | Service Port |
+|--------------|----------------------------|--------------|
+| Task Manager | task-manager:logging-local | 8080         |
+| Prometheus   | prom/prometheus:v3.5.5     | 9090         |
+| Grafana      | grafana/grafana:12.3.0     | 3000         |
+
+Prometheus scrapes application metrics every 15 seconds.<br/>
+Grafana provisions its Prometheus data source and dashboard from files.
+
+All monitoring configuration is stored in Git.
+
+#### Monitoring Deployment
+
+Build the local application image and deploy the monitoring overlay:
+
+```powershell
+docker build -t task-manager:logging-local .
+kubectl --context docker-desktop apply -k k8s/overlays/monitoring-demo
+```
+
+Access the applications using separate terminals:
+
+```powershell
+kubectl -n monitoring-demo port-forward svc/task-manager 18080:8080
+kubectl -n monitoring-demo port-forward svc/prometheus 19090:9090
+kubectl -n monitoring-demo port-forward svc/grafana 13000:3000
+```
+
+| Interface          | Local URL                                 |
+|--------------------|-------------------------------------------|
+| Task Manager       | http://localhost:18080                    |
+| Prometheus Targets | http://localhost:19090/targets            |
+| Grafana Dashboard  | http://localhost:13000/d/atu-task-manager |
+
+#### Dashboard Metrics
+
+- Application scrape availability.
+- Application CPU usage.
+- JVM heap memory.
+- HTTP request rate.
+- Average HTTP response time.
+- Application error log events.
+
+#### Monitoring Verification and Evidence
+
+- [x] Monitoring overlay passed Kustomize validation.
+- [x] Prometheus configuration passed promtool validation.
+- [x] All three Kubernetes Deployments successfully rolled out.
+- [x] All three Pods were Running with zero restarts after deployment.
+- [x] Original application remained available in the default namespace.
+
+**Kubernetes monitoring stack:**
+
+![Kubernetes monitoring stack](evidence/kubernetes-monitoring-stack.png)
+
+**Prometheus targets:**
+
+![Prometheus targets](evidence/prometheus-targets-up.png)
+
+**Grafana application dashboard:**
+
+![Grafana dashboard](evidence/grafana-task-manager-dashboard.png)
+
+#### Monitoring Security and Limitations
+
+Prometheus and Grafana run as non-root containers with read-only<br/>
+root filesystems, dropped capabilities and resource limits.
+
+Services use ClusterIP and local port forwarding.<br/>
+Grafana anonymous Viewer access is restricted to the demonstration use case.
+
+Monitoring storage uses temporary emptyDir volumes.<br/>
+Production requires persistent storage and appropriate access controls.
+
+This overlay uses a local application image and is separate from<br/>
+the published GHCR release configuration.
+
+**References:**
+
+- [Prometheus Configuration][monitoring-prometheus-config]
+- [Grafana Provisioning][monitoring-grafana-provisioning]
+- [Kubernetes Services][monitoring-kubernetes-services]
+
+[monitoring-prometheus-config]:
+https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+
+[monitoring-grafana-provisioning]:
+https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+[monitoring-kubernetes-services]:
+https://kubernetes.io/docs/concepts/services-networking/service/
+
+### Structured Application Logging
+
+Spring Boot produces structured JSON console logs using<br/>
+Elastic Common Schema (ECS), without additional dependencies.
+
+```properties
+logging.structured.format.console=ecs
+spring.main.banner-mode=off
+```
+
+Each logging event is represented by a single JSON object<br/>
+containing a timestamp, log level, service name and message.
+
+The StructuredLoggingTest integration test parses a real<br/>
+logging event and validates the required ECS fields.
+
+#### Kubernetes Logging Verification
+
+```powershell
+kubectl -n monitoring-demo logs deployment/task-manager
+```
+
+Format an individual JSON event for human-readable inspection:
+
+```powershell
+kubectl -n monitoring-demo logs deployment/task-manager |
+    Where-Object { $_.StartsWith('{') } |
+    Select-Object -Last 1 |
+    ConvertFrom-Json |
+    ConvertTo-Json -Depth 20
+```
+
+**Evidence:**
+
+![Structured logging](evidence/kubernetes-structured-logging.png)
+
+Centralised log aggregation and long-term retention<br/>
+are outside the scope of the current implementation.
+
+**Reference:**
+
+[Spring Boot Structured Logging][structured-logging]
+
+[structured-logging]:
+https://docs.spring.io/spring-boot/reference/features/logging.html
