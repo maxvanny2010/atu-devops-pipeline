@@ -722,3 +722,25 @@ These checks confirm that the earlier missing-frontend issue was fixed.
 The screenshot does not independently verify a digest-based rollout.
 
 ![Kubernetes v0.1.2 HTTP checks](evidence/kubernetes-v0.1.2-frontend-pass.png)
+
+### Automated Digest Release Pull Requests
+
+After a verified GHCR release, GitHub Actions proposes a Kustomize image<br/>
+update. The script reads `PUBLISHED_IMAGE` and creates a PR against the latest<br/>
+`master`. It uses an immutable SHA256 digest instead of editing version tags<br/>
+manually. Kubernetes manifest validation is dispatched for the new branch.<br/>
+The PR requires manual review and merge; it does not deploy the image.
+
+Offline tests use a temporary local Git repository and mocked GitHub CLI<br/>
+commands. No real GitHub PR or release is created during these tests.
+
+```bash
+bash scripts/release/test-create-kustomize-pr.sh
+```
+
+GitHub Actions keeps read-only token permissions by default. The repository<br/>
+setting allows Actions to create pull requests. The release job explicitly<br/>
+grants the permissions required for publishing, PR creation and validation.<br/>
+These permissions do not automatically approve or merge a PR.
+
+![GitHub Actions permissions](evidence/github-actions-workflow-permissions.png)

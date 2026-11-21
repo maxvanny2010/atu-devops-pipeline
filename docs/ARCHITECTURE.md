@@ -481,3 +481,14 @@ This separates registry publishing from manifest editing and supports testing.
 
 The next stage will connect publishing to a controlled GitHub Pull Request.
 No automatic deployment is implemented by the updater itself.
+
+### Automated Digest Promotion
+
+After Verify passes, Publish uploads the tested image and creates a release.
+It then proposes a Kustomize PR using the published immutable digest.
+The updater operates on a temporary worktree based on the latest `master`.
+The workflow triggers Kubernetes manifest validation explicitly because
+PRs created using `GITHUB_TOKEN` do not trigger ordinary PR workflows.
+Review and merge remain manual. No deployment is performed by this workflow.
+The Publishing job has scoped `contents`, `packages`, `pull-requests` and
+`actions` write permissions to publish, create a PR and dispatch validation.
