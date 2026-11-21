@@ -785,6 +785,36 @@ repository settings, not a successful automated PR.
 **Reflection:** Reusing tested scripts kept the workflow smaller and made<br/>
 offline validation possible without publishing an image or creating a PR.
 
+#### Entry 021 - Kubernetes Rollback Verification
+
+**Date:** 21 November 2026
+
+**Objective:** Verify recovery from a failed Kubernetes image update.
+
+I confirmed that the local Deployment was healthy on `v0.1.2`. I changed<br/>
+the image to a nonexistent tag and observed `ErrImagePull`. I then ran<br/>
+`kubectl rollout undo --to-revision=4`, which restored the working image.<br/>
+The Deployment returned to 1/1 Ready at revision 6.
+
+**Verification:** After rollback, `/`, `/index.html`, `/styles.css`,<br/>
+`/app.js`, `/api/tasks` and `/actuator/health` all returned HTTP 200.<br/>
+The health endpoint reported `UP`.
+
+**Problem:** The `last-applied-configuration` annotation still pointed to<br/>
+`v0.1.1`. Imperative rollback does not update this annotation, so I need<br/>
+to check declarative configuration before future `kubectl apply` actions.
+
+**Decision:** I added a read-only post-recovery verification script and<br/>
+offline tests. This avoids repeatedly breaking the cluster merely to<br/>
+verify the recovery checks. The live test was performed manually.
+
+**Reflection:** Pod readiness alone is not enough; I verified the actual<br/>
+frontend, API and health endpoints after recovery. The live cluster still<br/>
+uses the version tag, so digest-based deployment remains unverified.
+
+**Evidence:** `evidence/kubernetes-rollback-http-pass.png` shows the six<br/>
+successful HTTP checks after recovery.
+
 ### 3. Future Journal Entries
 
 Each subsequent phase will record its objective, implementation, engineering<br/>

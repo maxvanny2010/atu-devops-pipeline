@@ -492,3 +492,20 @@ PRs created using `GITHUB_TOKEN` do not trigger ordinary PR workflows.
 Review and merge remain manual. No deployment is performed by this workflow.
 The Publishing job has scoped `contents`, `packages`, `pull-requests` and
 `actions` write permissions to publish, create a PR and dispatch validation.
+
+### Rollback and Post-Recovery Verification
+
+The Kubernetes Deployment uses RollingUpdate and one replica. The local<br/>
+rollback test changed the image to a nonexistent tag and observed<br/>
+`ErrImagePull`. `kubectl rollout undo --to-revision=4` restored `v0.1.2`.<br/>
+Kubernetes created revision 6 and kept the existing healthy Pod available.
+
+The post-recovery script checks image identity, one updated Ready replica,<br/>
+six HTTP endpoints and Actuator `UP`. It does not mutate Kubernetes.<br/>
+Offline tests mock kubectl and HTTP responses to check expected failures.
+
+The `last-applied-configuration` annotation can remain stale after an<br/>
+imperative rollback. Future `kubectl apply` operations must use the<br/>
+reviewed declarative manifest and account for the saved annotation.<br/>
+The deployment currently uses the `v0.1.2` tag; a digest-based rollout<br/>
+has not yet been verified in the live cluster.
