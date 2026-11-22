@@ -1027,7 +1027,7 @@ to update the immutable image digest in the release overlay.
 
 **GitHub Release:**
 
-![Final release](evidence/release-v0.2.0.png)
+![Final release](evidence/ghcr-release-v0.2.0-details.png)
 
 **Automated digest Pull Request:**
 
