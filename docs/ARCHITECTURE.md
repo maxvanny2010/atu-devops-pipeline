@@ -9,13 +9,6 @@
 **Student Number:** L00213593<br/>
 **Academic Year:** 2026/2027
 
-**Technologies:** Java 21, Spring Boot, Spring Data JPA, H2, Maven,<br/>
-JUnit, Mockito, JaCoCo, HTML, CSS, JavaScript, Playwright, GitHub<br/>
-Actions, SonarQube, Trivy, Dependabot, Docker, Docker Compose, GHCR,<br/>
-Kubernetes, Kustomize, Terraform, Actuator, Micrometer, Prometheus,<br/>
-Grafana, Slack, SBOM, Software Provenance, Image Signing, Semantic<br/>
-Versioning
-
 ---
 
 ## Overview
@@ -247,7 +240,7 @@ paths are configurable through environment variables.
 | Release record     | GitHub Release associated with the tag    |
 | Image registry     | GitHub Container Registry (GHCR)          |
 | Image identity     | Immutable registry digest (`sha256:...`)  |
-| Security evidence  | Trivy report, SBOM, provenance, signature |
+| Security evidence  | Trivy vulnerability scan and test reports |
 
 ### Release Flow
 
@@ -255,7 +248,7 @@ paths are configurable through environment variables.
 Conventional Commits
          |
          v
-CI: Tests + Coverage + SonarQube + Docker + Trivy
+CI tests + coverage; Docker image + Trivy
          |
          v
 Approved merge to default branch
@@ -291,19 +284,18 @@ than rebuilding the application or relying on a mutable image tag.
 
 ### Workload and Runtime Security
 
-| Component                   | Kubernetes configuration                  |
-|-----------------------------|-------------------------------------------|
-| Application                 | Deployment                                |
-| Internal access             | Service                                   |
-| Non-root process            | `runAsNonRoot`, `runAsUser`, `runAsGroup` |
-| Read-only root              | `readOnlyRootFilesystem: true`            |
-| Capabilities                | `drop: [ALL]`                             |
-| Privilege escalation        | `allowPrivilegeEscalation: false`         |
-| System-call filtering       | `seccompProfile: RuntimeDefault`          |
-| Writable temporary files    | `emptyDir` mounted at `/app/tmp`          |
-| Health checks               | Startup, readiness, liveness probes       |
-| Environment overlays        | Kustomize                                 |
-| Infrastructure provisioning | Terraform                                 |
+| Component                | Kubernetes configuration                  |
+|--------------------------|-------------------------------------------|
+| Application              | Deployment                                |
+| Internal access          | Service                                   |
+| Non-root process         | `runAsNonRoot`, `runAsUser`, `runAsGroup` |
+| Read-only root           | `readOnlyRootFilesystem: true`            |
+| Capabilities             | `drop: [ALL]`                             |
+| Privilege escalation     | `allowPrivilegeEscalation: false`         |
+| System-call filtering    | `seccompProfile: RuntimeDefault`          |
+| Writable temporary files | `emptyDir` mounted at `/app/tmp`          |
+| Health checks            | Startup, readiness, liveness probes       |
+| Environment overlays     | Kustomize                                 |
 
 ### Deployment Flow
 
@@ -325,19 +317,19 @@ Rollout verification
             |
             +--> PASS: deployment complete
             |
-            +--> FAIL: rollback
+            +--> FAIL: manual recovery / rollback
 ```
 
 ### CI/CD Trust Boundaries
 
-| Pipeline stage      | Access                               |
-|---------------------|--------------------------------------|
-| Pull Request CI     | Read-only repository access          |
-| Release workflow    | Tag and release creation permissions |
-| Image publication   | GHCR package write permissions       |
-| Deployment workflow | Environment-scoped credentials       |
+| Pipeline stage    | Access                               |
+|-------------------|--------------------------------------|
+| Pull Request CI   | Read-only repository access          |
+| Release workflow  | Tag and release creation permissions |
+| Image publication | GHCR package write permissions       |
+| Local deployment  | Operator-controlled kubectl apply    |
 
-Deployment workflows are serialised per target environment.
+No automated live-cluster deployment workflow was implemented.
 
 ## Negative Docker Runtime Testing
 
@@ -406,19 +398,18 @@ protection is required if failed checks must technically block merge.
 - SonarQube static quality analysis and Trivy vulnerability scanning.
 - Hardened Docker runtime with reduced process and filesystem
   privileges.
-- Restricted secrets and separate trust boundaries for deployment.
-- Immutable release artifacts and eventual provenance validation.
+- Read-only CI jobs and scoped permissions for trusted release jobs.
+- Immutable published image references; no provenance attestation or signing.
 
 ## Observability
 
-| Component            | Responsibility                         |
-|----------------------|----------------------------------------|
-| Spring Boot Actuator | Health and application metrics         |
-| Micrometer           | Application instrumentation            |
-| Prometheus           | Metrics collection                     |
-| Grafana              | Operational dashboards                 |
-| Application logging  | Structured diagnostic information      |
-| Slack                | Pipeline and operational notifications |
+| Component            | Responsibility                    |
+|----------------------|-----------------------------------|
+| Spring Boot Actuator | Health and application metrics    |
+| Micrometer           | Application instrumentation       |
+| Prometheus           | Metrics collection                |
+| Grafana              | Operational dashboards            |
+| Application logging  | Structured diagnostic information |
 
 ## Verification Strategy
 
@@ -429,7 +420,7 @@ Evidence should include both positive and negative outcomes:
 - Vulnerability findings and blocked releases.
 - Container build and hardened runtime validation.
 - Kubernetes rollout, health checks, and rollback.
-- Metrics, dashboard screenshots, and alert notifications.
+- Metrics, dashboard screenshots, and structured JSON logs.
 - Tagged release and immutable artifact traceability.
 
 [pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
@@ -479,8 +470,8 @@ The release pipeline already captures `PUBLISHED_IMAGE` after a successful
 registry push. The reusable Kustomize updater accepts this full image reference.
 This separates registry publishing from manifest editing and supports testing.
 
-The next stage will connect publishing to a controlled GitHub Pull Request.
-No automatic deployment is implemented by the updater itself.
+A later stage connected publishing to an automated digest update PR.<br/>
+That workflow still does not automatically deploy to the cluster.
 
 ### Automated Digest Promotion
 
@@ -507,8 +498,8 @@ Offline tests mock kubectl and HTTP responses to check expected failures.
 The `last-applied-configuration` annotation can remain stale after an<br/>
 imperative rollback. Future `kubectl apply` operations must use the<br/>
 reviewed declarative manifest and account for the saved annotation.<br/>
-The deployment currently uses the `v0.1.2` tag; a digest-based rollout<br/>
-has not yet been verified in the live cluster.
+This describes the earlier rollback test on `v0.1.2`.<br/>
+The final `v0.2.0` image was later deployed and verified by digest.
 
 ### Application Metrics and Health Monitoring
 
@@ -521,8 +512,8 @@ The metrics collection flow is:
 flowchart LR
     A[Spring Boot] --> B[Micrometer]
     B --> C[Actuator Prometheus Endpoint]
-    D[Prometheus - planned] -->|HTTP scrape| C
-    E[Grafana - planned] -->|Query| D
+    D[Prometheus] -->|HTTP scrape| C
+    E[Grafana] -->|Query| D
 ```
 
 Application health is separated into liveness and readiness states.<br/>
@@ -537,7 +528,7 @@ Prometheus metrics may contain operational information and should<br/>
 not be exposed publicly without appropriate access controls.
 
 Four real HTTP integration tests verify health and metrics export.<br/>
-Prometheus collection and Grafana visualisation remain pending.
+Prometheus collection and Grafana visualisation were verified later.
 
 ### Kubernetes Monitoring Architecture
 

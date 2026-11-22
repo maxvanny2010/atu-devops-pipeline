@@ -2,15 +2,12 @@
 
 **Atlantic Technological University (ATU)**
 
-**Programme:** Postgraduate Diploma in Computing in DevOps **Module:** DevOps<br/>
-Software Engineering **Lecturer:** Maria Griffin **Student:** Maksym<br/>
-Voronianskyi **Student Number:** L00213593 **Academic Year:** 2026/2027
-
-**Technologies:** Java 21, Spring Boot, Maven, JUnit, Mockito, JaCoCo, Git,<br/>
-GitHub Actions, SonarQube, Trivy, Dependabot, Docker, Docker Compose, HTML,<br/>
-CSS, JavaScript, Playwright, GHCR, Kubernetes, Kustomize, Terraform, Actuator,<br/>
-Micrometer, Prometheus, Grafana, Slack, SBOM, Software Provenance, Image<br/>
-Signing, Semantic Versioning
+**Programme:** Postgraduate Diploma in Computing in DevOps<br/>
+**Module:** DevOps Software Engineering<br/>
+**Lecturer:** Maria Griffin<br/>
+**Student:** Maksym Voronianskyi<br/>
+**Student Number:** L00213593<br/>
+**Academic Year:** 2026/2027
 
 ---
 
@@ -50,12 +47,13 @@ dependency maintenance, and software supply chain integrity.
 #### Deployment Strategy
 
 Docker provides reproducible packaging; Kubernetes provides orchestration.<br/>
-Terraform may be used where infrastructure provisioning adds clear value.
+Kustomize was selected for environment configuration. No infrastructure<br/>
+provisioning tool was implemented in this project.
 
 #### Monitoring Strategy
 
 Spring Boot Actuator, Micrometer, Prometheus, and Grafana form the<br/>
-observability design. Slack provides operational notifications.
+observability design. Notifications and alerting were left out of scope.
 
 #### Release Strategy
 
@@ -526,7 +524,7 @@ changed.
 **Reflection:** A local PASS did not independently demonstrate that the checks<br/>
 worked in CI. The GitHub Actions run gives reproducible evidence tied to a<br/>
 commit. Negative cases confirm that unsafe release inputs are rejected. These<br/>
-tests did not verify GHCR publishing on their own.</br> I checked that<br/>
+tests did not verify GHCR publishing on their own.<br/> I checked that<br/>
 separately with a tagged release.
 
 #### Entry 015 - First GHCR Release and Security Fix
@@ -619,8 +617,8 @@ change.
 At that stage I had verified only generated manifests. Later on 19 November, I<br/>
 deployed the published image into Docker Desktop Kubernetes. The rollout, Pod<br/>
 readiness, health and REST API passed. However, the frontend returned HTTP 404;<br/>
-I investigated this in Entry 017. A corrected release and rollback test are<br/>
-still pending.
+I investigated this in Entry 017.<br/>
+The corrected release and rollback test were completed later.
 
 **References:**
 
@@ -672,10 +670,9 @@ actual missing-frontend problem.
 Desktop dashboard screenshots from the initial `v0.1.1` deployment. They<br/>
 confirm a running Pod, not a working frontend.
 
-**Limitation and next step:** The corrected image has only been tested locally.<br/>
-The new smoke test still needs GitHub Actions verification. A corrected GHCR<br/>
-release and Kubernetes redeployment have not yet been completed. The existing<br/>
-`v0.1.1` release is left unchanged.
+**Status at this iteration:** The corrected image had only been tested locally.<br/>
+The smoke test was later verified in CI, and `v0.1.2` was published<br/>
+and deployed. The original `v0.1.1` artifact was not changed.
 
 #### Entry 018 - Kubernetes Validation Script Refactoring
 
@@ -779,8 +776,8 @@ GitHub Actions to create PRs. Default token permissions remain read-only.<br/>
 Additional write permissions are scoped to the publishing job.
 
 **Local verification:** Bash syntax and mocked Git/GitHub CLI tests passed.<br/>
-The real release-to-PR workflow has not run yet. The screenshot documents<br/>
-repository settings, not a successful automated PR.
+At this stage, the real release-to-PR workflow had not yet run.<br/>
+It was later verified by automated Pull Request #18 for `v0.2.0`.
 
 **Reflection:** Reusing tested scripts kept the workflow smaller and made<br/>
 offline validation possible without publishing an image or creating a PR.
@@ -809,8 +806,9 @@ offline tests. This avoids repeatedly breaking the cluster merely to<br/>
 verify the recovery checks. The live test was performed manually.
 
 **Reflection:** Pod readiness alone is not enough; I verified the actual<br/>
-frontend, API and health endpoints after recovery. The live cluster still<br/>
-uses the version tag, so digest-based deployment remains unverified.
+frontend, API and health endpoints after recovery.<br/>
+At that point the live cluster still used a version tag.<br/>
+Digest-based deployment was later verified with `v0.2.0`.
 
 **Evidence:** `evidence/kubernetes-rollback-http-pass.png` shows the six<br/>
 successful HTTP checks after recovery.
@@ -846,8 +844,8 @@ Using Micrometer avoids implementing custom metrics collection.<br/>
 I also learned that test auto-configuration can differ from<br/>
 the configuration of a running application.
 
-**Limitation:** Prometheus collection, Grafana dashboards and<br/>
-live verification of the updated Kubernetes probes are pending.
+**Status at this iteration:** Live collection and dashboards were pending.<br/>
+They were later deployed in Entry 023 and verified with `v0.2.0`.
 
 **References:**
 

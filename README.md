@@ -2,16 +2,12 @@
 
 **Atlantic Technological University (ATU)**
 
-**Programme:** Postgraduate Diploma in Computing in DevOps **Module:** DevOps<br/>
-Software Engineering **Lecturer:** Maria Griffin **Student:** Maksym<br/>
-Voronianskyi **Student Number:** L00213593 **Academic Year:** 2026/2027
-
-**Technologies:** Java 21, Spring Boot, Spring Data JPA, H2, Maven, JUnit,<br/>
-Mockito, Spring Boot Test, JaCoCo, HTML, CSS, JavaScript, Playwright, Git,<br/>
-GitHub, GitHub Actions, SonarQube, Trivy, Dependabot, Docker, Docker Compose,<br/>
-GitHub Container Registry (GHCR), Kubernetes, Kustomize, Terraform, Spring Boot<br/>
-Actuator, Micrometer, Prometheus, Grafana, Slack, SBOM, Software Provenance,<br/>
-Image Signing, Conventional Commits, Semantic Versioning
+**Programme:** Postgraduate Diploma in Computing in DevOps<br/>
+**Module:** DevOps Software Engineering<br/>
+**Lecturer:** Maria Griffin<br/>
+**Student:** Maksym Voronianskyi<br/>
+**Student Number:** L00213593<br/>
+**Academic Year:** 2026/2027
 
 ---
 
@@ -29,12 +25,13 @@ orchestration, monitoring, and recovery procedures.
 
 #### Project Status
 
-The REST API, Maven tests, JaCoCo gate, Java CI, SonarQube, and Docker build<br/>
-have passed verification. Docker smoke and manual negative tests also passed in<br/>
-GitHub Actions. Dependabot opened four update PRs. The Task Manager frontend<br/>
-and all four Playwright E2E tests passed locally and in GitHub Actions on 18<br/>
-November 2026. The first successful tagged release, `v0.1.1`, was published to<br/>
-GHCR on 19 November 2026.
+The final release `v0.2.0` was published to GHCR on 21 November 2026.<br/>
+The release pipeline passed testing, browser checks and Trivy scanning.<br/>
+Automated digest Pull Request #18 was merged, and the published image<br/>
+was deployed in Docker Desktop Kubernetes using its immutable digest.<br/>
+Health, liveness, readiness, REST API, UI and metrics checks passed.<br/>
+Prometheus, Grafana and structured ECS logging were also verified.<br/>
+Earlier test and release results are documented below as project history.
 
 #### Technology Stack
 
@@ -48,15 +45,16 @@ GHCR on 19 November 2026.
 | Browser testing          | Playwright                                |
 | Source control and CI/CD | Git, GitHub, GitHub Actions               |
 | Code quality             | SonarQube                                 |
-| Container security       | Docker, Docker Compose, Trivy             |
-| Image distribution       | GHCR, SBOM, provenance, image signing     |
-| Orchestration and IaC    | Kubernetes, Kustomize, Terraform          |
+| Container security       | Docker, Trivy                             |
+| Image distribution       | GitHub Container Registry (GHCR)          |
+| Orchestration            | Kubernetes, Kustomize                     |
 | Observability            | Actuator, Micrometer, Prometheus, Grafana |
-| Notifications            | Slack                                     |
+| Logging                  | Spring Boot ECS JSON                      |
 | Release management       | Conventional Commits, Semantic Versioning |
 
-The technology list describes the overall project scope. Individual<br/>
-implementation and validation states are recorded in the sections below.
+The table lists technologies implemented in this repository.<br/>
+Additional infrastructure provisioning, notification integrations,<br/>
+SBOM generation, provenance attestations and image signing are out of scope.
 
 #### Application Scope
 
@@ -89,7 +87,7 @@ deployment operations.
 5. Scan the image and establish traceable release artifacts.
 6. Publish the verified image to GHCR by immutable digest.
 7. Deploy to Kubernetes through a controlled workflow.
-8. Verify health, metrics, alerts, and rollback procedures.
+8. Verify health, metrics, logs, and rollback procedures.
 
 #### Git Workflow
 
@@ -102,15 +100,15 @@ deployment operations.
 
 #### Testing Strategy
 
-| Test level     | Purpose                         | Result                         |
-|----------------|---------------------------------|--------------------------------|
-| Unit           | Validate service logic          | ![PASS][pass]                  |
-| Integration    | Validate application components | ![PASS][pass]                  |
-| REST API       | Validate backend HTTP behaviour | ![PASS][pass]                  |
-| JaCoCo gate    | Enforce 80% minimum coverage    | ![PASS][pass]                  |
-| Docker runtime | Validate hardened runtime       | ![PASS][pass]                  |
-| Frontend E2E   | Validate browser workflows      | Local and CI 4/4 PASS          |
-| Kubernetes     | Rollout and rollback            | Rollout PASS, rollback pending |
+| Test level     | Purpose                         | Result                      |
+|----------------|---------------------------------|-----------------------------|
+| Unit           | Validate service logic          | ![PASS][pass]               |
+| Integration    | Validate application components | ![PASS][pass]               |
+| REST API       | Validate backend HTTP behaviour | ![PASS][pass]               |
+| JaCoCo gate    | Enforce 80% minimum coverage    | ![PASS][pass]               |
+| Docker runtime | Validate hardened runtime       | ![PASS][pass]               |
+| Frontend E2E   | Validate browser workflows      | Local and CI 4/4 PASS       |
+| Kubernetes     | Rollout and rollback            | Rollout PASS, rollback PASS |
 
 **Local backend validation (17 November 2026):** Nine tests passed: four<br/>
 service unit tests, four MVC API integration tests, and one application context<br/>
@@ -342,10 +340,11 @@ Enforcing a merge block requires a branch ruleset or protection rule.
 
 #### Monitoring and Logging
 
-The delivery architecture includes Spring Boot Actuator and Micrometer,<br/>
-Prometheus metrics collection, Grafana dashboards, structured logs, alerts, and<br/>
-Slack notifications. Their end-to-end deployment and verification have not yet<br/>
-been completed.
+Spring Boot Actuator and Micrometer export application metrics.<br/>
+Prometheus collects them, while Grafana provides a provisioned dashboard.<br/>
+Spring Boot emits structured ECS JSON logs. These components were verified<br/>
+in the local Kubernetes environment. Alerting and Slack notifications<br/>
+were not implemented.
 
 #### Assignment Requirements and Evidence
 
@@ -356,7 +355,7 @@ been completed.
 | Static Analysis and Security       |    15 | Quality and scan reports       |
 | Containerisation and Orchestration |    20 | Docker and Kubernetes evidence |
 | Deployment                         |    20 | CD runs and deployment checks  |
-| Monitoring and Logging             |    15 | Dashboards, alerts, and logs   |
+| Monitoring and Logging             |    15 | Dashboard, metrics, JSON logs  |
 
 Only observed results are described as verified.
 
@@ -402,14 +401,13 @@ the persisted task status.
 
 #### Development Status and Limitations
 
-Backend tests, quality checks, Docker build, positive smoke tests, Trivy<br/>
-scanning, and manual negative tests are verified in GitHub Actions. Dependabot<br/>
-PR creation is verified. Frontend E2E tests passed locally (4/4) and in GitHub<br/>
-Actions. Release `v0.1.1` was verified and published to GHCR. The first local<br/>
-Kubernetes rollout and API health checks passed, but the published `v0.1.1`<br/>
-image lacked the frontend. A corrected image was verified locally; Kubernetes<br/>
-frontend deployment, rollback, supply-chain attestations, and observability<br/>
-remain unverified.
+The final `v0.2.0` release passed CI/CD verification and was published<br/>
+to GHCR. Docker security tests, Playwright E2E tests, Kubernetes rollout,<br/>
+rollback, Prometheus/Grafana monitoring and ECS JSON logging were verified.<br/>
+The final digest-based deployment passed six HTTP endpoint checks.<br/>
+The application uses in-memory H2 and monitoring uses temporary storage.<br/>
+Centralised log aggregation, alerting, signing, SBOM and provenance<br/>
+attestations were not implemented.
 
 [pass]: https://img.shields.io/badge/PASS-2ea44f?style=flat-square
 
@@ -456,7 +454,7 @@ bash scripts/release/test-release-scripts.sh
 ```
 
 Also run `actionlint .github/workflows/release.yml` and syntax checks for all<br/>
-release scripts. The tests use mocked services. Real release</br> verification<br/>
+release scripts. The tests use mocked services. Real release<br/> verification<br/>
 was later completed by the successful tagged `v0.1.1` run.
 
 ### Automated Release Script Tests
@@ -530,7 +528,7 @@ Deployment and Service between local and production configurations without<br/>
 copying the same YAML files.
 
 - `k8s/base/` contains the shared Deployment and Service.
-- `k8s/overlays/release/` defines the GHCR image and version `v0.1.1`.
+- `k8s/overlays/release/` pins the released GHCR image by SHA256 digest.
 - `k8s/overlays/local/` configures the local environment.
 - `k8s/overlays/prod/` configures the production environment.
 
@@ -566,9 +564,9 @@ resources, health probes, and key security settings.
 These checks alone do not prove that the application runs in Kubernetes. A<br/>
 later local rollout of the published `v0.1.1` image completed with one Ready<br/>
 Pod; health and REST API returned HTTP 200. The frontend returned HTTP 404,<br/>
-which led to the packaging fix documented below. The corrected image still<br/>
-needs a new release and Kubernetes verification. Rollback has not yet been<br/>
-tested.
+which led to the packaging fix documented below.<br/>
+The corrected image was later published as `v0.1.2` and verified.<br/>
+Rollback was subsequently tested in Iteration 021.
 
 #### Kubernetes Cluster Deployment Evidence
 
@@ -582,8 +580,8 @@ tested.
 - Health and REST API endpoints returned HTTP 200.
 
 These screenshots show the initial `v0.1.1` rollout, not the corrected image.<br/>
-The missing frontend was diagnosed and fixed separately in the local image. A<br/>
-Kubernetes rollout of the corrected image remains pending.
+The missing frontend was diagnosed and fixed after this initial rollout.<br/>
+Later deployment evidence for `v0.1.2` and `v0.2.0` appears below.
 
 **Kubernetes cluster and node readiness:**
 
@@ -626,7 +624,7 @@ Run the validation locally with Git Bash:
 files within 90 characters per line; staged whitespace check PASS.
 
 The new `install-kubectl.sh` was syntax-checked locally but not executed.<br/>
-The refactored workflow still requires GitHub Actions verification on Ubuntu.
+The refactored workflow was subsequently verified through GitHub Actions.
 
 The `.gitattributes` rule `scripts/k8s/*.sh text eol=lf` keeps both Bash files<br/>
 with LF line endings and avoids Windows CRLF problems.
@@ -671,10 +669,9 @@ specifically because the frontend is missing. The same smoke test is called by<b
 Docker CI and the release workflow, so this check will also run during future<br/>
 release verification.
 
-The corrected image has been verified locally, but **has not yet been published<br/>
-as a new GHCR release or redeployed to Kubernetes**. The published `v0.1.1`<br/>
-image remains unchanged. GitHub Actions has not yet verified the updated smoke<br/>
-test.
+At the time of this fix, the corrected image had only been tested locally.<br/>
+It was subsequently published as `v0.1.2` and deployed successfully.<br/>
+The later `v0.2.0` release also passed the updated release pipeline.
 
 
 [rw]: https://github.com/maxvanny2010/atu-devops-pipeline/actions/workflows/release.yml
@@ -704,7 +701,7 @@ Run offline tests:
 bash scripts/release/test-kustomize-image.sh
 ```
 
-Automated integration with GitHub Actions is planned for the next iteration.
+Automated integration was implemented and verified in the later `v0.2.0` release.
 
 ### Release v0.1.2 Evidence
 
@@ -819,8 +816,8 @@ All three probe timeouts were increased from one to five seconds.
 - [x] All 13 JUnit tests passed.
 - [x] Local, production and release Kustomize configurations validated.
 
-The updated Kubernetes probes require a compatible application image.<br/>
-Live Kubernetes monitoring validation remains pending.
+The updated probes were subsequently verified with the `v0.2.0` image.<br/>
+Prometheus and Grafana were deployed in the `monitoring-demo` namespace.
 
 **References:**
 
