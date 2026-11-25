@@ -10,7 +10,7 @@ COPY src ./src
 RUN mvn --batch-mode --no-transfer-progress clean verify
 
 # Stage 2: Extract Spring Boot layers
-FROM eclipse-temurin:21-jre-noble AS extract
+FROM eclipse-temurin:25-jre-noble AS extract
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ COPY --from=build /app/target/task-manager-0.0.1-SNAPSHOT.jar application.jar
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
 # Stage 3: Runtime
-FROM eclipse-temurin:21-jre-noble AS runtime
+FROM eclipse-temurin:25-jre-noble AS runtime
 
 WORKDIR /app
 
